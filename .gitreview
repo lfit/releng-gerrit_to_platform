@@ -1,0 +1,5 @@
+[gerrit]
+host=gerrit.linuxfoundation.org
+port=29418
+project=releng/gerrit_to_platform.git
+defaultbranch=main

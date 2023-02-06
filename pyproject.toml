@@ -1,0 +1,99 @@
+[project]
+name = "gerrit_to_platform"
+# version = "0.0.1"
+dynamic = ["version"]
+description = "Gerrit to GitHub / GitLab"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = {file = "LICENSE.txt"}
+
+authors = [
+    {name = "Andrew Grimberg", email = "agrimberg@linuxfoundation.org"}
+]
+
+maintainers = [
+    {name = "Andrew Grimberg", email = "agrimberg@linuxfoundation.org"}
+]
+
+# Add here all kinds of additional classifiers as defined under
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Console :: Curses",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Version Control :: Git"
+]
+
+dependencies = [
+    "ghapi~=1.0.3",
+    "typer[all]~=0.7.0"
+]
+
+[project.optional-dependencies]
+testing = [
+    "setuptools",
+    "pytest",
+    "pytest-cov"
+]
+
+[project.urls]
+homepage = "https://gerrit.linuxfoundation.org/infra/releng/gerrit_to_platform"
+documentation = "https://docs.releng.linuxfoundation.org"
+repository = "https://gerrit.linuxfoundation.org/infra/releng/gerrit_to_platform"
+
+
+[build-system]
+# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
+requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+platforms = ["linux"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
+
+[tool.setuptools_scm]
+# For smarter version schemes and other configuration options,
+# check out https://github.com/pypa/setuptools_scm
+version_scheme = "no-guess-dev"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov",
+    "gerrit_to_platform",
+    "--cov-report",
+    "term-missing",
+    "--verbose"
+]
+norecursedirs = [
+    "dist",
+    "build",
+    ".tox"
+]
+testpaths = [
+    "tests"
+]
+
+[tool.flake8]
+extend-ignore = ["E203", "W503"]
+# ^  Black-compatible
+#    E203 and W503 have edge cases handled by black
+exclude = [
+    ".tox",
+    "build",
+    "dist",
+    ".eggs",
+    "docs/conf.py"
+]
