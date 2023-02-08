@@ -16,12 +16,25 @@ repos:
       - id: end-of-file-fixer
       - id: requirements-txt-fixer
       - id: mixed-line-ending
-        args: ['--fix=lf']  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
+        args: ['--fix=lf']
+      - id: no-commit-to-branch
+        args:
+          - --branch=dev
+          - --branch=master
+          - --branch=main
+          - --branch=rc
+          - --branch=production
 
   - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.17.0
+    rev: v0.19.0dev
     hooks:
       - id: gitlint
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.29.0
+    hooks:
+      - id: yamllint
+        types: [yaml]
 
   ## If you want to automatically "modernize" your Python code:
   # - repo: https://github.com/asottile/pyupgrade
@@ -71,3 +84,8 @@ repos:
   #   rev: v2.2.2
   #   hooks:
   #   - id: codespell
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.0.0
+    hooks:
+      - id: mypy
