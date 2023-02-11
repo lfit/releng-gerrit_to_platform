@@ -46,6 +46,10 @@ testing = [
     "pytest-cov"
 ]
 
+dev = [
+    "mypy"
+]
+
 [project.urls]
 homepage = "https://gerrit.linuxfoundation.org/infra/releng/gerrit_to_platform"
 documentation = "https://docs.releng.linuxfoundation.org"
@@ -71,10 +75,9 @@ version_scheme = "no-guess-dev"
 
 [tool.pytest.ini_options]
 addopts = [
-    "--cov",
-    "gerrit_to_platform",
-    "--cov-report",
-    "term-missing",
+    "--import-mode=importlib",
+    "--cov=gerrit_to_platform",
+    "--cov-report=term-missing",
     "--verbose"
 ]
 norecursedirs = [
