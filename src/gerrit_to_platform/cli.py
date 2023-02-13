@@ -13,25 +13,30 @@ from typing import List, Optional
 
 import typer
 
+import gerrit_to_platform.patchset_created as patchset_created
+
 app = typer.Typer()
+app.add_typer(
+    patchset_created.app, name="patchset-created", help="Handle patchset-created hook"
+)
 
 
-@app.command()
-def patchset_created(
-    change: str = typer.Option(..., help="change id"),
-    kind: str = typer.Option(..., help="change kind"),
-    change_url: str = typer.Option(..., help="change url"),
-    change_owner: str = typer.Option(..., help="change owner"),
-    change_owner_username: str = typer.Option(..., help="username"),
-    project: str = typer.Option(..., help="project name"),
-    branch: str = typer.Option(..., help="branch"),
-    topic: str = typer.Option(..., help="topic"),
-    uploader: str = typer.Option(..., help="uploader"),
-    uploader_username: str = typer.Option(..., help="username"),
-    commit: str = typer.Option(..., help="sha1"),
-    patchset: str = typer.Option(..., help="patchset id"),
-):
-    """Handle patcheset-created hook."""
+# @app.command()
+# def patchset_created(
+#     change: str = typer.Option(..., help="change id"),
+#     kind: str = typer.Option(..., help="change kind"),
+#     change_url: str = typer.Option(..., help="change url"),
+#     change_owner: str = typer.Option(..., help="change owner"),
+#     change_owner_username: str = typer.Option(..., help="username"),
+#     project: str = typer.Option(..., help="project name"),
+#     branch: str = typer.Option(..., help="branch"),
+#     topic: str = typer.Option(..., help="topic"),
+#     uploader: str = typer.Option(..., help="uploader"),
+#     uploader_username: str = typer.Option(..., help="username"),
+#     commit: str = typer.Option(..., help="sha1"),
+#     patchset: str = typer.Option(..., help="patchset id"),
+# ):
+#     """Handle patcheset-created hook."""
 
 
 @app.command(
