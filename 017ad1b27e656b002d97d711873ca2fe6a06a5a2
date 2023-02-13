@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c9eab671_8e8dea2e",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2023-02-13T16:02:35Z",
+      "side": 1,
+      "message": "This is to get around the fact that many of the pre-commit hooks require git to be fully configured with a username and email address. In particular, this modification is done primarily for CI systems, but also for developers that haven\u0027t set this information and are running tox.\n\nYou will also notice that on 117 a guard file is touched that is then checked for on line 126 which then undoes the user.name setting for git-config which helps protect git configuration for local development that hasn\u0027t properly configured the user.name option.",
+      "parentUuid": "d2d39a26_c5495db5",
+      "revId": "017ad1b27e656b002d97d711873ca2fe6a06a5a2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fe9d6192_50b331fb",
         "filename": "tox.ini",
         "patchSetId": 2
@@ -48,6 +66,30 @@
       "writtenOn": "2023-02-13T15:44:03Z",
       "side": 1,
       "message": "the ci@example.org will it be part of the commit?\nI see that it is only added (and removed) if there is no email configured for git.",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 1
+      },
+      "revId": "017ad1b27e656b002d97d711873ca2fe6a06a5a2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54cae7d4_6e78f30a",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2023-02-13T16:02:35Z",
+      "side": 1,
+      "message": "This is to get around the fact that many of the pre-commit hooks require git to be fully configured with a username and email address. In particular, this modification is done primarily for CI systems, but also for developers that haven\u0027t set this information and are running tox.\n\nYou will also notice that on 120 a guard file is touched that is then checked for on line 129 which then undoes the user.email setting for git-config which helps protect git configuration for local development that hasn\u0027t properly configured the user.email option.",
+      "parentUuid": "fe9d6192_50b331fb",
       "range": {
         "startLine": 119,
         "startChar": 0,
