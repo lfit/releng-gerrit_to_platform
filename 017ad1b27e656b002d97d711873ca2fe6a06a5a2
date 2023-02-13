@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32975fb2_0eb84874",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 214
+      },
+      "writtenOn": "2023-02-13T15:44:03Z",
+      "side": 1,
+      "message": "Just want a clarification",
+      "revId": "017ad1b27e656b002d97d711873ca2fe6a06a5a2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2d39a26_c5495db5",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 214
+      },
+      "writtenOn": "2023-02-13T15:44:03Z",
+      "side": 1,
+      "message": "Same for name as for email below",
+      "revId": "017ad1b27e656b002d97d711873ca2fe6a06a5a2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe9d6192_50b331fb",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 214
+      },
+      "writtenOn": "2023-02-13T15:44:03Z",
+      "side": 1,
+      "message": "the ci@example.org will it be part of the commit?\nI see that it is only added (and removed) if there is no email configured for git.",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 1
+      },
+      "revId": "017ad1b27e656b002d97d711873ca2fe6a06a5a2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
