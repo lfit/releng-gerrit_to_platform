@@ -26,3 +26,9 @@ def get_config() -> ConfigParser:
     with open(G2P_CONFIG_FILE) as config_file:
         config.read_file(config_file, G2P_CONFIG_FILE)
     return config
+
+
+def has_section(section: str) -> bool:
+    """Indicate if section exists in config file."""
+    config = get_config()
+    return config.has_section(section)

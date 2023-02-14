@@ -12,7 +12,7 @@
 import os
 
 import gerrit_to_platform.config  # type: ignore
-from gerrit_to_platform.config import get_config  # type: ignore
+from gerrit_to_platform.config import get_config, has_section  # type: ignore
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -28,3 +28,18 @@ def test_get_config(mocker):
         os.path.join(FIXTURE_DIR, "testconfig.ini"),
     )
     assert get_config()
+
+
+def test_has_section(mocker):
+    """Test has_section function."""
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "G2P_CONFIG_FILE",
+        os.path.join(FIXTURE_DIR, "testconfig.ini"),
+    )
+    expected = True
+    actual = has_section("github.com")
+    assert expected == actual
+    expected = False
+    actual = has_section("foo")
+    assert expected == actual
