@@ -36,14 +36,16 @@ classifiers = [
 
 dependencies = [
     "ghapi~=1.0.3",
-    "typer[all]~=0.7.0"
+    "typer[all]~=0.7.0",
+    "xdg~=5.1.1"
 ]
 
 [project.optional-dependencies]
 testing = [
     "setuptools",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "pytest-mock"
 ]
 
 dev = [
