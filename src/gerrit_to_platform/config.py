@@ -12,6 +12,7 @@
 import configparser
 import os.path
 from configparser import ConfigParser
+from typing import Optional, Union
 
 from xdg import XDG_CONFIG_HOME
 
@@ -32,3 +33,13 @@ def has_section(section: str) -> bool:
     """Indicate if section exists in config file."""
     config = get_config()
     return config.has_section(section)
+
+
+def get_setting(section: str, option: Optional[str] = None) -> Union[list, str]:
+    """Get all configuration options from a section, or specific option from a section."""
+    config = get_config()
+
+    if option:
+        return config.get(section, option)
+
+    return config.options(section)

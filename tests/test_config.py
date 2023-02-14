@@ -11,8 +11,14 @@
 
 import os
 
+import pytest
+
 import gerrit_to_platform.config  # type: ignore
-from gerrit_to_platform.config import get_config, has_section  # type: ignore
+from gerrit_to_platform.config import (  # type: ignore
+    get_config,
+    get_setting,
+    has_section,
+)
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -43,3 +49,24 @@ def test_has_section(mocker):
     expected = False
     actual = has_section("foo")
     assert expected == actual
+
+
+def test_get_setting(mocker):
+    """Test get_setting function."""
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "G2P_CONFIG_FILE",
+        os.path.join(FIXTURE_DIR, "testconfig.ini"),
+    )
+    expected = ["user", "token"]
+    actual = get_setting("github.com")
+    assert expected == actual
+
+    expected = "foo"
+    actual = get_setting("github.com", "user")
+    assert expected == actual
+
+    with pytest.raises(Exception, match="No section: 'foobar'"):
+        get_setting("foobar")
+    with pytest.raises(Exception, match="No option 'baz' in section: 'github.com'"):
+        get_setting("github.com", "baz")
