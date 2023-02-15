@@ -1,0 +1,65 @@
+{
+  "total_count": 5,
+  "workflows": [
+    {
+      "id": 18215370,
+      "node_id": "W_kwDOFzVD3s4BFfHK",
+      "name": "CodeQL",
+      "path": ".github/workflows/codeql-analysis.yaml",
+      "state": "disabled_manually",
+      "created_at": "2022-01-18T21:49:30.000-08:00",
+      "updated_at": "2022-01-18T21:56:17.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/18215370",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/codeql-analysis.yaml",
+      "badge_url": "https://github.com/example/example/workflows/CodeQL/badge.svg"
+    },
+    {
+      "id": 18525370,
+      "node_id": "W_kwDOFzVD3s4BYhHK",
+      "name": "Verify",
+      "path": ".github/workflows/verify.yaml",
+      "state": "active",
+      "created_at": "2022-01-18T21:49:30.000-08:00",
+      "updated_at": "2022-01-18T21:56:17.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/18525370",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/verify.yaml",
+      "badge_url": "https://github.com/example/example/workflows/verify/badge.svg"
+    },
+    {
+      "id": 18115669,
+      "node_id": "W_kwDOFzVD3s4BFGxV",
+      "name": "Gitlint",
+      "path": ".github/workflows/gitlint.yaml",
+      "state": "active",
+      "created_at": "2022-01-17T08:56:29.000-08:00",
+      "updated_at": "2022-01-17T09:01:44.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/18115669",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/gitlint.yaml",
+      "badge_url": "https://github.com/example/example/workflows/Gitlint/badge.svg"
+    },
+    {
+      "id": 18455547,
+      "node_id": "W_kwDOFzVD3s4BGZv7",
+      "name": "Release Drafter",
+      "path": ".github/workflows/release-drafter.yaml",
+      "state": "active",
+      "created_at": "2022-01-22T13:30:17.000-08:00",
+      "updated_at": "2022-01-22T13:30:17.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/18455547",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/release-drafter.yaml",
+      "badge_url": "https://github.com/example/example/workflows/Release%20Drafter/badge.svg"
+    },
+    {
+      "id": 18455548,
+      "node_id": "W_kwDOFzVD3s4BGZv8",
+      "name": "Release",
+      "path": ".github/workflows/release.yaml",
+      "state": "active",
+      "created_at": "2022-01-22T13:30:17.000-08:00",
+      "updated_at": "2022-01-22T13:30:17.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/18455548",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/release.yaml",
+      "badge_url": "https://github.com/example/example/workflows/Release/badge.svg"
+    }
+  ]
+}

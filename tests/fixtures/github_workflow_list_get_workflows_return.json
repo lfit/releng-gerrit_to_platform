@@ -1,0 +1,22 @@
+[
+  {
+    "id": 18525370,
+    "name": "Verify",
+    "path": ".github/workflows/verify.yaml"
+  },
+  {
+    "id": 18115669,
+    "name": "Gitlint",
+    "path": ".github/workflows/gitlint.yaml"
+  },
+  {
+    "id": 18455547,
+    "name": "Release Drafter",
+    "path": ".github/workflows/release-drafter.yaml"
+  },
+  {
+    "id": 18455548,
+    "name": "Release",
+    "path": ".github/workflows/release.yaml"
+  }
+]
