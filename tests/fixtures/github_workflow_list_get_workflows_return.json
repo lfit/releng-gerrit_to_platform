@@ -5,6 +5,11 @@
     "path": ".github/workflows/verify.yaml"
   },
   {
+    "id": 17098575,
+    "name": "Check Main",
+    "path": ".github/workflows/verify-main.yaml"
+  },
+  {
     "id": 18115669,
     "name": "Gitlint",
     "path": ".github/workflows/gitlint.yaml"
