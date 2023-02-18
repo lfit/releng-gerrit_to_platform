@@ -1,0 +1,12 @@
+[
+  {
+    "id": 18525370,
+    "name": "Verify",
+    "path": ".github/workflows/verify.yaml"
+  },
+  {
+    "id": 17098575,
+    "name": "Check Main",
+    "path": ".github/workflows/verify-main.yaml"
+  }
+]

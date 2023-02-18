@@ -1,5 +1,5 @@
 {
-  "total_count": 5,
+  "total_count": 6,
   "workflows": [
     {
       "id": 18215370,
@@ -24,6 +24,18 @@
       "url": "https://api.github.com/repos/example/example/actions/workflows/18525370",
       "html_url": "https://github.com/example/example/blob/main/.github/workflows/verify.yaml",
       "badge_url": "https://github.com/example/example/workflows/verify/badge.svg"
+    },
+    {
+      "id": 17098575,
+      "node_id": "W_kwDOFzVD3s4BYmmL",
+      "name": "Check Main",
+      "path": ".github/workflows/verify-main.yaml",
+      "state": "active",
+      "created_at": "2022-01-18T21:49:30.000-08:00",
+      "updated_at": "2022-01-18T21:56:17.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/17098575",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/verify-main.yaml",
+      "badge_url": "https://github.com/example/example/workflows/verify-main/badge.svg"
     },
     {
       "id": 18115669,
