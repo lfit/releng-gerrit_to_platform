@@ -16,6 +16,23 @@ from ghapi.all import GhApi  # type: ignore
 from gerrit_to_platform.config import get_setting
 
 
+def filter_workflows(
+    owner: str, repository: str, search_filter: str
+) -> List[Dict[str, str]]:
+    """Return a case insensitive filtered list of workflows."""
+    search_filter = search_filter.lower()
+    workflows = get_workflows(owner, repository)
+    filtered_workflows: List[Dict[str, str]] = []
+
+    for workflow in workflows:
+        name = workflow["name"].lower()
+        path = workflow["path"].lower()
+        if name.find(search_filter) >= 0 or path.find(search_filter) >= 0:
+            filtered_workflows.append(workflow)
+
+    return filtered_workflows
+
+
 def get_workflows(owner: str, repository: str) -> List[Dict[str, str]]:
     """Get all active workflows for specific repository."""
     github_token = get_setting("github.com", "token")

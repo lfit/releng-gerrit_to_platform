@@ -14,7 +14,7 @@ import os
 
 import gerrit_to_platform.config  # type: ignore
 import gerrit_to_platform.github  # type: ignore
-from gerrit_to_platform.github import get_workflows  # type: ignore
+from gerrit_to_platform.github import filter_workflows, get_workflows  # type: ignore
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -31,6 +31,10 @@ GITHUB_EMPTY_WORKFLOW_LIST = os.path.join(
 )
 GITHUB_EMPTY_WORKFLOW_LIST_RETURN = os.path.join(
     FIXTURE_DIR, "github_workflow_empty_list_get_workflows_return.json"
+)
+
+GITHUB_FILTERED_LIST = os.path.join(
+    FIXTURE_DIR, "github_workflow_list_filter_workflows_return.json"
 )
 
 
@@ -65,4 +69,19 @@ def test_get_workflows(mocker):
     with open(GITHUB_EMPTY_WORKFLOW_LIST_RETURN) as list_file:
         expected = json.load(list_file)
     actual = get_workflows("example", "repository")
+    assert expected == actual
+
+
+def test_filter_workflows(mocker):
+    """Return workflows that match filter."""
+    with open(GITHUB_WORKFLOW_LIST_RETURN) as list_file:
+        get_workflows_return = json.load(list_file)
+    with open(GITHUB_FILTERED_LIST) as list_file:
+        expected = json.load(list_file)
+
+    mocker.patch(
+        "gerrit_to_platform.github.get_workflows", return_value=get_workflows_return
+    )
+
+    actual = filter_workflows("example", "repository", "verify")
     assert expected == actual
