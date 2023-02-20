@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5675f689_6df778f8",
+        "filename": "tests/fixtures/github_workflow_empty_list_get_workflows_return.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2023-02-20T14:51:14Z",
+      "side": 1,
+      "message": "Is this empty file required? Looks like this can be created on the run and cleaned up. \n\nMinor nit: Extra line before EOF.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "4290030bd7d4051de3ef0582a9ab3b77fa6ebab2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
