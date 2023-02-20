@@ -22,6 +22,30 @@
       },
       "revId": "4290030bd7d4051de3ef0582a9ab3b77fa6ebab2",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74618b72_6e87de04",
+        "filename": "tests/fixtures/github_workflow_empty_list_get_workflows_return.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2023-02-20T15:37:32Z",
+      "side": 1,
+      "message": "Yes, it could be created on the fly, but if you follow the logic of what is happening, then it makes sense to do it this way. Everything else is being loaded from a file.\n\nAs for the extra line before EOF, black reformatted the file to what you see now.",
+      "parentUuid": "5675f689_6df778f8",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "4290030bd7d4051de3ef0582a9ab3b77fa6ebab2",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     }
   ]
 }
