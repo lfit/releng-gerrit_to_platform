@@ -25,13 +25,15 @@ FIXTURE_DIR = os.path.join(
     "fixtures",
 )
 
+TEST_CONFIG = os.path.join(FIXTURE_DIR, "testconfig.ini")
+
 
 def test_get_config(mocker):
     """Test getting config data."""
     mocker.patch.object(
         gerrit_to_platform.config,
         "G2P_CONFIG_FILE",
-        os.path.join(FIXTURE_DIR, "testconfig.ini"),
+        TEST_CONFIG,
     )
     assert get_config()
 
@@ -41,7 +43,7 @@ def test_has_section(mocker):
     mocker.patch.object(
         gerrit_to_platform.config,
         "G2P_CONFIG_FILE",
-        os.path.join(FIXTURE_DIR, "testconfig.ini"),
+        TEST_CONFIG,
     )
     expected = True
     actual = has_section("github.com")
@@ -56,7 +58,7 @@ def test_get_setting(mocker):
     mocker.patch.object(
         gerrit_to_platform.config,
         "G2P_CONFIG_FILE",
-        os.path.join(FIXTURE_DIR, "testconfig.ini"),
+        TEST_CONFIG,
     )
     expected = ["user", "token"]
     actual = get_setting("github.com")
