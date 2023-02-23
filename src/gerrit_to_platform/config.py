@@ -11,22 +11,116 @@
 
 import configparser
 import os.path
-from configparser import ConfigParser
-from typing import Optional, Union
+import re
+from configparser import ConfigParser, NoOptionError
+from typing import Dict, Final, Optional, TypedDict, Union
 
 from xdg import XDG_CONFIG_HOME
+
+
+# Type Definitions
+class Remote(TypedDict):
+    """Remote Dictionary definition."""
+
+    owner: str
+    remotenamestyle: str
+    repo: str
+
+
+PlatformType = Dict[str, Remote]
+
+
+class ReplicationRemotes(TypedDict, total=False):
+    """Platform Dictionary definition."""
+
+    github: PlatformType
+    gitlab: PlatformType
+
+
+# CONSTANTS
+CONFIG = "config"
+REPLICATION = "replication"
+DEFAULT_CONFIG = CONFIG
+GITHUB: Final = "github"
+GITLAB: Final = "gitlab"
+
 
 G2P_CONFIG_FILE = os.path.join(
     XDG_CONFIG_HOME, "gerrit_to_platform", "gerrit_to_platform.ini"
 )
 
+GERRIT_REPLICATION_CONFIG = os.path.join(
+    XDG_CONFIG_HOME, "gerrit_to_platform", "replication.config"
+)
 
-def get_config() -> ConfigParser:
+CONFIG_FILES = {
+    CONFIG: G2P_CONFIG_FILE,
+    REPLICATION: GERRIT_REPLICATION_CONFIG,
+}
+
+
+def get_config(config_type: str = DEFAULT_CONFIG) -> ConfigParser:
     """Get the config object."""
     config = configparser.ConfigParser()
-    with open(G2P_CONFIG_FILE) as config_file:
-        config.read_file(config_file, G2P_CONFIG_FILE)
+    conf_file = CONFIG_FILES[config_type]
+    with open(conf_file) as config_file:
+        config.read_file(config_file, conf_file)
     return config
+
+
+def get_replication_remotes() -> ReplicationRemotes:
+    """Get the replication remotes available."""
+    remotes_config = get_config(REPLICATION)
+    remotes: ReplicationRemotes = {}
+
+    for section in remotes_config.sections():
+        platform_type = ""
+        subsect = r'"(.*)"'
+        subsection = re.findall(subsect, section)[0]
+        url = remotes_config.get(section, "url")
+        try:
+            authgroup = remotes_config.get(section, "authgroup")
+        except NoOptionError:
+            authgroup = ""
+        try:
+            namestyle = remotes_config.get(section, "remotenamestyle")
+        except NoOptionError:
+            namestyle = "slash"
+
+        if (
+            "github" in section.lower()
+            or "github" in subsection.lower()
+            or "github" in authgroup.lower()
+        ):
+            platform_type = GITHUB
+        elif (
+            "gitlab" in section.lower()
+            or "gitlab" in subsection.lower()
+            or "gitlab" in authgroup.lower()
+        ):
+            platform_type = GITLAB
+        else:
+            continue
+
+        url_regex = r":(.*)/(.*)$"
+        owner, repo = re.findall(url_regex, url)[0]
+
+        if platform_type in remotes.keys():
+            remotes[platform_type][subsection] = {  # type: ignore
+                "owner": owner,
+                "remotenamestyle": namestyle,
+                "repo": repo,
+            }
+        else:
+            remotes[platform_type] = {  # type: ignore
+                subsection: {
+                    "owner": owner,
+                    "remotenamestyle": namestyle,
+                    "repo": repo,
+                }
+            }
+
+    return remotes
 
 
 def has_section(section: str) -> bool:

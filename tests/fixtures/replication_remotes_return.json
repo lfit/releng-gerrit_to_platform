@@ -1,0 +1,21 @@
+{
+  "github": {
+    "github": {
+      "owner": "example",
+      "remotenamestyle": "dash",
+      "repo": "${name}.git"
+    },
+    "github-other": {
+      "owner": "example2",
+      "remotenamestyle": "underscore",
+      "repo": "${name}.git"
+    }
+  },
+  "gitlab": {
+    "gitlab": {
+      "owner": "example",
+      "remotenamestyle": "slash",
+      "repo": "${name}.git"
+    }
+  }
+}

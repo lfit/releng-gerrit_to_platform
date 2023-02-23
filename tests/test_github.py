@@ -14,12 +14,21 @@ import os
 
 import gerrit_to_platform.config  # type: ignore
 import gerrit_to_platform.github  # type: ignore
+from gerrit_to_platform.config import CONFIG, REPLICATION
 from gerrit_to_platform.github import filter_workflows, get_workflows  # type: ignore
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     "fixtures",
 )
+
+TEST_CONFIG = os.path.join(FIXTURE_DIR, "testconfig.ini")
+REPLICATION_CONFIG = os.path.join(FIXTURE_DIR, "replication.config")
+
+MOCK_CONFIG_FILES = {
+    CONFIG: TEST_CONFIG,
+    REPLICATION: REPLICATION_CONFIG,
+}
 
 GITHUB_WORKFLOW_LIST = os.path.join(FIXTURE_DIR, "github_workflow_list.json")
 GITHUB_WORKFLOW_LIST_RETURN = os.path.join(
@@ -40,10 +49,11 @@ GITHUB_FILTERED_LIST = os.path.join(
 
 def test_get_workflows(mocker):
     """Test workflow acquisition."""
+    """Test getting config data."""
     mocker.patch.object(
         gerrit_to_platform.config,
-        "G2P_CONFIG_FILE",
-        os.path.join(FIXTURE_DIR, "testconfig.ini"),
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
     )
 
     with open(GITHUB_WORKFLOW_LIST) as list_file:
