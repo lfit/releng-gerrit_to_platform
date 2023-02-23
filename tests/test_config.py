@@ -9,13 +9,17 @@
 ##############################################################################
 """Unit tests for config."""
 
+import json
 import os
 
 import pytest
 
 import gerrit_to_platform.config  # type: ignore
 from gerrit_to_platform.config import (  # type: ignore
+    CONFIG,
+    REPLICATION,
     get_config,
+    get_replication_remotes,
     get_setting,
     has_section,
 )
@@ -26,24 +30,47 @@ FIXTURE_DIR = os.path.join(
 )
 
 TEST_CONFIG = os.path.join(FIXTURE_DIR, "testconfig.ini")
+REPLICATION_CONFIG = os.path.join(FIXTURE_DIR, "replication.config")
+
+MOCK_CONFIG_FILES = {
+    CONFIG: TEST_CONFIG,
+    REPLICATION: REPLICATION_CONFIG,
+}
 
 
 def test_get_config(mocker):
     """Test getting config data."""
     mocker.patch.object(
         gerrit_to_platform.config,
-        "G2P_CONFIG_FILE",
-        TEST_CONFIG,
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
     )
-    assert get_config()
+    assert get_config().has_section("github.com")
+    assert get_config(REPLICATION).has_section('remote "github"')
+
+
+def test_get_replication_remotes(mocker):
+    """Test getting replication remotes."""
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
+    )
+    REPLICATION_REMOTES_RETURN = os.path.join(
+        FIXTURE_DIR, "replication_remotes_return.json"
+    )
+    with open(REPLICATION_REMOTES_RETURN) as remotes_return:
+        expected = json.load(remotes_return)
+    actual = get_replication_remotes()
+    assert expected == actual
 
 
 def test_has_section(mocker):
     """Test has_section function."""
     mocker.patch.object(
         gerrit_to_platform.config,
-        "G2P_CONFIG_FILE",
-        TEST_CONFIG,
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
     )
     expected = True
     actual = has_section("github.com")
@@ -57,8 +84,8 @@ def test_get_setting(mocker):
     """Test get_setting function."""
     mocker.patch.object(
         gerrit_to_platform.config,
-        "G2P_CONFIG_FILE",
-        TEST_CONFIG,
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
     )
     expected = ["user", "token"]
     actual = get_setting("github.com")
