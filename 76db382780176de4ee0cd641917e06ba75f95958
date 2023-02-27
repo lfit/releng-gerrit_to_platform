@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8868067_5e394d86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-02-27T22:50:24Z",
+      "side": 1,
+      "message": "Since this is a new feature, can we attach it to a Jira for reference?",
+      "revId": "76db382780176de4ee0cd641917e06ba75f95958",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
