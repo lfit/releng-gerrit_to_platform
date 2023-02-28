@@ -12,13 +12,28 @@
 import json
 import os
 
+import gerrit_to_platform.github as github  # type: ignore
 from gerrit_to_platform.config import Platform  # type: ignore
-from gerrit_to_platform.helpers import convert_repo_name  # type: ignore
+from gerrit_to_platform.helpers import (  # type: ignore
+    choose_dispatch,
+    convert_repo_name,
+)
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     "fixtures",
 )
+
+
+def test_choose_dispatch(mocker):
+    """Test choose_dispatch."""
+    expected = github.dispatch_workflow
+    actual = choose_dispatch(Platform.GITHUB)
+    assert expected == actual
+
+    expected = None
+    actual = choose_dispatch(Platform.GITLAB)
+    assert expected == actual
 
 
 def test_convert_repo_name(mocker):
