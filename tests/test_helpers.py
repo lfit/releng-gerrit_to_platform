@@ -16,6 +16,7 @@ import gerrit_to_platform.github as github  # type: ignore
 from gerrit_to_platform.config import Platform  # type: ignore
 from gerrit_to_platform.helpers import (  # type: ignore
     choose_dispatch,
+    choose_filter_workflows,
     convert_repo_name,
 )
 
@@ -33,6 +34,17 @@ def test_choose_dispatch(mocker):
 
     expected = None
     actual = choose_dispatch(Platform.GITLAB)
+    assert expected == actual
+
+
+def test_choose_filter_workflows(mocker):
+    """Test choose_filter_workflows."""
+    expected = github.filter_workflows
+    actual = choose_filter_workflows(Platform.GITHUB)
+    assert expected == actual
+
+    expected = None
+    actual = choose_filter_workflows(Platform.GITLAB)
     assert expected == actual
 
 

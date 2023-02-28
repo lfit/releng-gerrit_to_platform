@@ -23,6 +23,14 @@ def choose_dispatch(platform: Platform) -> Union[Callable, None]:
     return None
 
 
+def choose_filter_workflows(platform: Platform) -> Union[Callable, None]:
+    """Choose platform workflow filter."""
+    if platform.value == "github":
+        return github.filter_workflows
+
+    return None
+
+
 def convert_repo_name(
     remotes: ReplicationRemotes, platform: Platform, remote: str, repository: str
 ) -> str:
