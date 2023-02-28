@@ -11,11 +11,16 @@
 
 import json
 import os
+from typing import Dict
 
 import gerrit_to_platform.config  # type: ignore
 import gerrit_to_platform.github  # type: ignore
 from gerrit_to_platform.config import CONFIG, REPLICATION
-from gerrit_to_platform.github import filter_workflows, get_workflows  # type: ignore
+from gerrit_to_platform.github import (  # type: ignore
+    dispatch_workflow,
+    filter_workflows,
+    get_workflows,
+)
 
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -47,9 +52,36 @@ GITHUB_FILTERED_LIST = os.path.join(
 )
 
 
+def test_dispatch_workflow(mocker):
+    """Test workflow triggering."""
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
+    )
+
+    def mock_create_workflow_dispatch(
+        owner: str, repository: str, workflow_id: str, ref: str, inputs: Dict[str, str]
+    ):
+        """Mock GhApi.actions.create_workflow_dispatch."""
+        return {}
+
+    mock_GhApi = mocker.MagicMock()
+    mock_GhApi.actions.create_workflow_dispatch = mock_create_workflow_dispatch
+    mocker.patch(
+        "gerrit_to_platform.github.GhApi",
+        return_value=mock_GhApi,
+    )
+
+    expected = {}
+    actual = dispatch_workflow(
+        "example_org", "example_repo", "48166297", "refs/heads/main", {}
+    )
+    assert expected == actual
+
+
 def test_get_workflows(mocker):
     """Test workflow acquisition."""
-    """Test getting config data."""
     mocker.patch.object(
         gerrit_to_platform.config,
         "CONFIG_FILES",

@@ -9,11 +9,23 @@
 ##############################################################################
 """Github connection module."""
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from ghapi.all import GhApi  # type: ignore
 
 from gerrit_to_platform.config import get_setting
+
+
+def dispatch_workflow(
+    owner: str, repository: str, workflow_id: str, ref: str, inputs: Dict[str, str]
+) -> Any:
+    """Trigger target workflow."""
+    github_token = get_setting("github.com", "token")
+    api = GhApi(token=github_token)
+
+    return api.actions.create_workflow_dispatch(
+        owner, repository, workflow_id, ref, inputs
+    )
 
 
 def filter_workflows(
