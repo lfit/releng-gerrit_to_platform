@@ -9,7 +9,18 @@
 ##############################################################################
 """Common helper functions."""
 
+from typing import Callable
+
+import gerrit_to_platform.github as github
 from gerrit_to_platform.config import Platform, ReplicationRemotes
+
+
+def choose_dispatch(platform: Platform) -> Callable | None:
+    """Choose platform job dispatcher."""
+    if platform.value == "github":
+        return github.dispatch_workflow
+
+    return None
 
 
 def convert_repo_name(
