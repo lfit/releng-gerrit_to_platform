@@ -57,9 +57,10 @@ homepage = "https://gerrit.linuxfoundation.org/infra/releng/gerrit_to_platform"
 documentation = "https://docs.releng.linuxfoundation.org"
 repository = "https://gerrit.linuxfoundation.org/infra/releng/gerrit_to_platform"
 
+[project.scripts]
+patchset-created = "gerrit_to_platform.patchset_created:app"
 
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
 requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
 build-backend = "setuptools.build_meta"
 
