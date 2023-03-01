@@ -13,6 +13,8 @@ import json
 import os
 from typing import Dict
 
+from fastcore.net import HTTP404NotFoundError  # type: ignore
+
 import gerrit_to_platform.config  # type: ignore
 import gerrit_to_platform.github  # type: ignore
 from gerrit_to_platform.config import CONFIG, REPLICATION
@@ -94,6 +96,11 @@ def test_get_workflows(mocker):
     def mock_list_repo_workflows(owner: str, repository: str) -> dict:
         return workflow_list_json
 
+    def mock_list_repo_workflows_exception(owner: str, repository: str) -> dict:
+        raise HTTP404NotFoundError(
+            mocker.MagicMock(), mocker.MagicMock(), mocker.MagicMock()
+        )
+
     mock_GhApi = mocker.MagicMock()
     mock_GhApi.actions.list_repo_workflows = mock_list_repo_workflows
 
@@ -110,6 +117,10 @@ def test_get_workflows(mocker):
         workflow_list_json = json.load(list_file)
     with open(GITHUB_EMPTY_WORKFLOW_LIST_RETURN) as list_file:
         expected = json.load(list_file)
+    actual = get_workflows("example", "repository")
+    assert expected == actual
+
+    mock_GhApi.actions.list_repo_workflows = mock_list_repo_workflows_exception
     actual = get_workflows("example", "repository")
     assert expected == actual
 

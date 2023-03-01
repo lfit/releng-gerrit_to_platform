@@ -11,6 +11,7 @@
 
 from typing import Any, Dict, List
 
+from fastcore.net import HTTP404NotFoundError  # type: ignore
 from ghapi.all import GhApi  # type: ignore
 
 from gerrit_to_platform.config import get_setting
@@ -50,7 +51,11 @@ def get_workflows(owner: str, repository: str) -> List[Dict[str, str]]:
     github_token = get_setting("github.com", "token")
     api = GhApi(token=github_token)
 
-    workflows = api.actions.list_repo_workflows(owner, repository)["workflows"]
+    try:
+        workflows = api.actions.list_repo_workflows(owner, repository)["workflows"]
+    except HTTP404NotFoundError:
+        return []
+
     workflows = [workflow for workflow in workflows if workflow["state"] == "active"]
     key_ids = [
         "node_id",
