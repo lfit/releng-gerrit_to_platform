@@ -1,0 +1,9 @@
+{
+  "gitlab": {
+    "gitlab": {
+      "owner": "example",
+      "remotenamestyle": "slash",
+      "repo": "${name}.git"
+    }
+  }
+}

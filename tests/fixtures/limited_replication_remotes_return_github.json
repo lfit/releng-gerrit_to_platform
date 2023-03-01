@@ -1,0 +1,9 @@
+{
+  "github": {
+    "github": {
+      "owner": "example",
+      "remotenamestyle": "dash",
+      "repo": "${name}.git"
+    }
+  }
+}
