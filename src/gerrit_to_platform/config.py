@@ -77,6 +77,9 @@ def get_replication_remotes() -> ReplicationRemotes:
     remotes: ReplicationRemotes = {}
 
     for section in remotes_config.sections():
+        if '"' not in section:
+            continue
+
         subsect = r'"(.*)"'
         subsection = re.findall(subsect, section)[0]
         url = remotes_config.get(section, "url")
