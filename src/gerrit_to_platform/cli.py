@@ -13,57 +13,14 @@ from typing import List, Optional
 
 import typer
 
+import gerrit_to_platform.comment_added as comment_added
 import gerrit_to_platform.patchset_created as patchset_created
 
 app = typer.Typer()
 app.add_typer(
     patchset_created.app, name="patchset-created", help="Handle patchset-created hook"
 )
-
-
-# @app.command()
-# def patchset_created(
-#     change: str = typer.Option(..., help="change id"),
-#     kind: str = typer.Option(..., help="change kind"),
-#     change_url: str = typer.Option(..., help="change url"),
-#     change_owner: str = typer.Option(..., help="change owner"),
-#     change_owner_username: str = typer.Option(..., help="username"),
-#     project: str = typer.Option(..., help="project name"),
-#     branch: str = typer.Option(..., help="branch"),
-#     topic: str = typer.Option(..., help="topic"),
-#     uploader: str = typer.Option(..., help="uploader"),
-#     uploader_username: str = typer.Option(..., help="username"),
-#     commit: str = typer.Option(..., help="sha1"),
-#     patchset: str = typer.Option(..., help="patchset id"),
-# ):
-#     """Handle patcheset-created hook."""
-
-
-@app.command(
-    context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
-)
-def comment_added(
-    context: typer.Context,
-    change: str = typer.Option(..., help="change id"),
-    change_url: str = typer.Option(..., help="change url"),
-    change_owner: str = typer.Option(..., help="change owner"),
-    change_owner_username: str = typer.Option(..., help="username"),
-    project: str = typer.Option(..., help="project name"),
-    branch: str = typer.Option(..., help="branch"),
-    topic: str = typer.Option(..., help="topic"),
-    author: str = typer.Option(..., help="comment author"),
-    author_username: str = typer.Option(..., help="username"),
-    commit: str = typer.Option(..., help="sha1"),
-    comment: str = typer.Option(..., help="comment"),
-):
-    """
-    Handle comment-added hook.
-
-    Approval scores should be added as --<approval category id> <score>
-    When a score is removed it should be --<aproval categor id>-oldValue <score>
-
-    Multiple scores and old scores may be passed
-    """
+app.add_typer(comment_added.app, name="comment-added", help="Handle comment-added hook")
 
 
 @app.command()
