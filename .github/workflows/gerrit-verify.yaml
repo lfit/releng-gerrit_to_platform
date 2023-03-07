@@ -1,0 +1,128 @@
+---
+name: Gerrit Verify
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+    inputs:
+      GERRIT_BRANCH:
+        description: 'Branch that change is against'
+        required: true
+        type: string
+      GERRIT_CHANGE_ID:
+        description: 'The ID for the change'
+        required: true
+        type: string
+      GERRIT_CHANGE_NUMBER:
+        description: 'The Gerrit number'
+        required: true
+        type: string
+      GERRIT_CHANGE_URL:
+        description: 'URL to the change'
+        required: true
+        type: string
+      GERRIT_EVENT_TYPE:
+        description: 'Type of Gerrit event'
+        required: true
+        type: string
+      GERRIT_PATCHSET_NUMBER:
+        description: 'The patch number for the change'
+        required: true
+        type: string
+      GERRIT_PATCHSET_REVISION:
+        description: 'The revision sha'
+        required: true
+        type: string
+      GERRIT_PROJECT:
+        description: 'Project in Gerrit'
+        required: true
+        type: string
+      GERRIT_REFSPEC:
+        description: 'Gerrit refspec of change'
+        required: true
+        type: string
+
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.ref_type }}-
+    ${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      wheel-distribution: ${{ steps.wheel-distribution.outputs.path }}
+    steps:
+      - uses: lfit/checkout-gerrit-change-action@v0.2
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Run static analysis and format checkers
+        run: pipx run pre-commit run --all-files --show-diff-on-failure
+      - name: Build package distribution files
+        run: >-
+          pipx run --python '${{ steps.setup-python.outputs.python-path }}'
+          tox -e clean,build
+      - name: Record the path of wheel distribution
+        id: wheel-distribution
+        run: echo "path=$(ls dist/*.whl)" >> $GITHUB_OUTPUT
+      - name: Store the distribution files for use in other stages
+        # `tests` and `publish` will use the same pre-built distributions,
+        # so we make sure to release the exact same package that was tested
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-distribution-files
+          path: dist/
+          retention-days: 1
+
+
+  test:
+    needs: prepare
+    strategy:
+      matrix:
+        python:
+          - "3.8"
+        platform:
+          - ubuntu-latest
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: lfit/checkout-gerrit-change-action@v0.2
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+      - uses: actions/setup-python@v4
+        id: setup-python
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Retrieve pre-built distribution files
+        uses: actions/download-artifact@v3
+        with: {name: python-distribution-files, path: dist/}
+      - name: Run tests
+        run: >-
+          pipx run --python '${{ steps.setup-python.outputs.python-path }}'
+          tox --installpkg '${{ needs.prepare.outputs.wheel-distribution }}'
+          -- -rFEx --durations 10 --color yes  # pytest args
+      - name: Generate coverage report
+        run: pipx run coverage lcov -o coverage.lcov
+      - name: Upload partial coverage report
+        uses: coverallsapp/github-action@master
+        with:
+          path-to-lcov: coverage.lcov
+          github-token: ${{ secrets.github_token }}
+          flag-name: ${{ matrix.platform }} - py${{ matrix.python }}
+          parallel: true
+
+
+  finalize:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finalize coverage report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
