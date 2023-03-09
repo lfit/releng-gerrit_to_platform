@@ -9,7 +9,6 @@
 ##############################################################################
 """Handler for patchset-created events."""
 
-import re
 from typing import Dict, List
 
 import typer
@@ -19,6 +18,9 @@ from gerrit_to_platform.helpers import (
     choose_dispatch,
     choose_filter_workflows,
     convert_repo_name,
+    get_change_id,
+    get_change_number,
+    get_change_refspec,
 )
 
 app = typer.Typer()
@@ -41,17 +43,9 @@ def patchset_created(
 ):
     """Handle patcheset-created hook."""
 
-    change_id_regex = r".*~.*~(I.*)"
-    change_id = re.findall(change_id_regex, change)[0]
-
-    change_number_regex = r"^.*/\+/(\d+)$"
-    change_number = re.findall(change_number_regex, change_url)[0]
-
-    if int(change_number) < 100:
-        ref_shard = change_number.zfill(2)
-    else:
-        ref_shard = change_number[len(change_number) - 2 :]
-    refspec = f"refs/changes/{ref_shard}/{change_number}/{patchset}"
+    change_id = get_change_id(change)
+    change_number = get_change_number(change_url)
+    refspec = get_change_refspec(change_number, patchset)
 
     inputs = {
         "GERRIT_BRANCH": branch,
