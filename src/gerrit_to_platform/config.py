@@ -71,6 +71,18 @@ def get_config(config_type: str = DEFAULT_CONFIG) -> ConfigParser:
     return config
 
 
+def get_mapping(mapping_section: str) -> Union[Dict[str, str], None]:
+    """Return all of the keyword to job mappings"""
+    config = get_config()
+
+    section = f'mapping "{mapping_section}"'
+    if section in config.sections():
+        print(config[section])
+        return dict(config.items(section))
+
+    return None
+
+
 def get_replication_remotes() -> ReplicationRemotes:
     """Get the replication remotes available."""
     remotes_config = get_config(REPLICATION)

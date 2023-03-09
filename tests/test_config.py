@@ -19,6 +19,7 @@ from gerrit_to_platform.config import (  # type: ignore
     CONFIG,
     REPLICATION,
     get_config,
+    get_mapping,
     get_replication_remotes,
     get_setting,
     has_section,
@@ -47,6 +48,22 @@ def test_get_config(mocker):
     )
     assert get_config().has_section("github.com")
     assert get_config(REPLICATION).has_section('remote "github"')
+
+
+def test_get_mapping(mocker):
+    """Test get_mapping"""
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "CONFIG_FILES",
+        MOCK_CONFIG_FILES,
+    )
+    expected = {"recheck": "verify", "reverify": "verify", "remerge": "merge"}
+    actual = get_mapping("comment-added")
+    assert expected == actual
+
+    expected = None
+    actual = get_mapping("foo")
+    assert expected == actual
 
 
 def test_get_replication_remotes(mocker):
