@@ -62,3 +62,12 @@ def get_change_number(change_url: str) -> str:
     """Get the Gerrit change_number"""
     change_number_regex = r"^.*/\+/(\d+)$"
     return re.findall(change_number_regex, change_url)[0]
+
+
+def get_change_refspec(change_number: str, patchset: str) -> str:
+    """Return the change refspec from the change number (str) and patch number"""
+    if int(change_number) < 100:
+        ref_shard = change_number.zfill(2)
+    else:
+        ref_shard = change_number[len(change_number) - 2 :]
+    return f"refs/changes/{ref_shard}/{change_number}/{patchset}"

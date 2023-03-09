@@ -20,6 +20,7 @@ from gerrit_to_platform.helpers import (  # type: ignore
     convert_repo_name,
     get_change_id,
     get_change_number,
+    get_change_refspec,
 )
 
 FIXTURE_DIR = os.path.join(
@@ -89,4 +90,19 @@ def test_get_change_number(mocker):
     """Test get_change_number"""
     expected = "71001"
     actual = get_change_number("https://example.org.org/r/c/example/+/71001")
+    assert expected == actual
+
+
+def test_get_change_refspec(mocker):
+    """Test get_change_refspec"""
+    expected = "refs/changes/01/1/1"
+    actual = get_change_refspec("1", "1")
+    assert expected == actual
+
+    expected = "refs/changes/01/1/2"
+    actual = get_change_refspec("1", "2")
+    assert expected == actual
+
+    expected = "refs/changes/02/202/1"
+    actual = get_change_refspec("202", "1")
     assert expected == actual
