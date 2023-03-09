@@ -18,6 +18,7 @@ from gerrit_to_platform.helpers import (  # type: ignore
     choose_dispatch,
     choose_filter_workflows,
     convert_repo_name,
+    get_change_id,
 )
 
 FIXTURE_DIR = os.path.join(
@@ -73,4 +74,11 @@ def test_convert_repo_name(mocker):
     actual = convert_repo_name(
         replication_remotes, Platform.GITLAB, "gitlab", "foo/bar"
     )
+    assert expected == actual
+
+
+def test_get_change_id(mocker):
+    """Test get_change_id"""
+    expected = "Ibaz"
+    actual = get_change_id("foo~bar~Ibaz")
     assert expected == actual

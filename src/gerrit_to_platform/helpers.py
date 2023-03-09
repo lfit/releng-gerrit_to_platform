@@ -9,6 +9,7 @@
 ##############################################################################
 """Common helper functions."""
 
+import re
 from typing import Callable, Union
 
 import gerrit_to_platform.github as github
@@ -49,3 +50,9 @@ def convert_repo_name(
     converted_repository = repository.replace("/", remote_styles[target_style])
 
     return converted_repository
+
+
+def get_change_id(change: str) -> str:
+    """Get the Gerrit change_id from an hook event."""
+    change_id_regex = r".*~.*~(I.*)"
+    return re.findall(change_id_regex, change)[0]
