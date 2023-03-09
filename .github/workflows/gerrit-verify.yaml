@@ -56,6 +56,16 @@ jobs:
     outputs:
       wheel-distribution: ${{ steps.wheel-distribution.outputs.path }}
     steps:
+      - name: Clear votes
+        uses: lfit/gerrit-review-action@v0.2
+        with:
+          host: gerrit.linuxfoundation.org
+          username: ${{ vars.LFIT_GERRIT_SSH_USER }}
+          key: ${{ secrets.LFIT_GERRIT_SSH_PRIVKEY }}
+          passphrase: ${{ secrets.LFIT_GERRIT_SSH_PRIVKEY_PASSPHRASE }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: clear
       - uses: lfit/checkout-gerrit-change-action@v0.2
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
@@ -78,7 +88,6 @@ jobs:
           name: python-distribution-files
           path: dist/
           retention-days: 1
-
 
   test:
     needs: prepare
@@ -125,3 +134,19 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
+
+  vote:
+    needs: [prepare, test, finalize]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set vote
+        if: ${{ always() }}
+        uses: lfit/gerrit-review-action@v0.2
+        with:
+          host: gerrit.linuxfoundation.org
+          username: ${{ vars.LFIT_GERRIT_SSH_USER }}
+          key: ${{ secrets.LFIT_GERRIT_SSH_PRIVKEY }}
+          passphrase: ${{ secrets.LFIT_GERRIT_SSH_PRIVKEY_PASSPHRASE }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: ${{ job.status }}
