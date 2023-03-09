@@ -19,6 +19,7 @@ from gerrit_to_platform.helpers import (  # type: ignore
     choose_filter_workflows,
     convert_repo_name,
     get_change_id,
+    get_change_number,
 )
 
 FIXTURE_DIR = os.path.join(
@@ -81,4 +82,11 @@ def test_get_change_id(mocker):
     """Test get_change_id"""
     expected = "Ibaz"
     actual = get_change_id("foo~bar~Ibaz")
+    assert expected == actual
+
+
+def test_get_change_number(mocker):
+    """Test get_change_number"""
+    expected = "71001"
+    actual = get_change_number("https://example.org.org/r/c/example/+/71001")
     assert expected == actual

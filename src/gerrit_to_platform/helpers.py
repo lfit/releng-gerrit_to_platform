@@ -56,3 +56,9 @@ def get_change_id(change: str) -> str:
     """Get the Gerrit change_id from an hook event."""
     change_id_regex = r".*~.*~(I.*)"
     return re.findall(change_id_regex, change)[0]
+
+
+def get_change_number(change_url: str) -> str:
+    """Get the Gerrit change_number"""
+    change_number_regex = r"^.*/\+/(\d+)$"
+    return re.findall(change_number_regex, change_url)[0]
