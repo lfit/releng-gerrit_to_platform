@@ -59,6 +59,7 @@ repository = "https://gerrit.linuxfoundation.org/infra/releng/gerrit_to_platform
 
 [project.scripts]
 patchset-created = "gerrit_to_platform.patchset_created:app"
+comment-added = "gerrit_to_platform.comment_added:app"
 
 [build-system]
 requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
