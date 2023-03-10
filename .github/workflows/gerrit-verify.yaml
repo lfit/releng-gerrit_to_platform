@@ -44,9 +44,7 @@ on:
 
 
 concurrency:
-  group: >-
-    ${{ github.workflow }}-${{ github.ref_type }}-
-    ${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.event.inputs.GERRIT_CHANGE_ID || github.run_id }}
   cancel-in-progress: true
 
 
