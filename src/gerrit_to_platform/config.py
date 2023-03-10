@@ -77,7 +77,6 @@ def get_mapping(mapping_section: str) -> Union[Dict[str, str], None]:
 
     section = f'mapping "{mapping_section}"'
     if section in config.sections():
-        print(config[section])
         return dict(config.items(section))
 
     return None
