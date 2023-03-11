@@ -11,13 +11,16 @@
 
 import json
 import os
+from typing import Any, Callable, Dict, List, Union
 
 import gerrit_to_platform.github as github  # type: ignore
+import gerrit_to_platform.helpers  # type: ignore
 from gerrit_to_platform.config import Platform  # type: ignore
 from gerrit_to_platform.helpers import (  # type: ignore
     choose_dispatch,
     choose_filter_workflows,
     convert_repo_name,
+    find_and_dispatch,
     get_change_id,
     get_change_number,
     get_change_refspec,
@@ -26,6 +29,37 @@ from gerrit_to_platform.helpers import (  # type: ignore
 FIXTURE_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     "fixtures",
+)
+
+VERIFY_FILTERED_WORKFLOWS = os.path.join(
+    FIXTURE_DIR, "github_workflow_list_filter_workflows_return.json"
+)
+
+MERGE_FILTERED_WORKFLOWS = os.path.join(
+    FIXTURE_DIR, "github_workflow_list_filter_workflows_return_merge.json"
+)
+
+REPLICATION_REMOTES = os.path.join(FIXTURE_DIR, "replication_remotes_return.json")
+
+REPLICATION_REMOTES_GITHUB = os.path.join(
+    FIXTURE_DIR, "limited_replication_remotes_return_github.json"
+)
+
+REPLICATION_REMOTES_GITLAB = os.path.join(
+    FIXTURE_DIR, "limited_replication_remotes_return_gitlab.json"
+)
+
+PATCH1_VERIFY = (
+    "Dispatching workflow 'Verify', id 18525370 on "
+    + "github:example/example-project for change 1 patch 1"
+)
+PATCH1_CHECK_MAIN = (
+    "Dispatching workflow 'Check Main', id 17098575 on "
+    + "github:example/example-project for change 1 patch 1"
+)
+CHANGE2_MERGE = (
+    "Dispatching workflow 'Merge', id 18525370 on "
+    + "github:example/example-project for change 1 patch 1"
 )
 
 
@@ -54,11 +88,6 @@ def test_choose_filter_workflows(mocker):
 def test_convert_repo_name(mocker):
     """Convert repository name to platform style."""
 
-    REPLICATION_REMOTES = os.path.join(
-        FIXTURE_DIR,
-        "replication_remotes_return.json",
-    )
-
     with open(REPLICATION_REMOTES) as remotes:
         replication_remotes = json.load(remotes)
 
@@ -77,6 +106,93 @@ def test_convert_repo_name(mocker):
         replication_remotes, Platform.GITLAB, "gitlab", "foo/bar"
     )
     assert expected == actual
+
+
+def test_find_and_dispatch(mocker, capfd):
+    """Test the find_and_dispatch helper."""
+    inputs = {
+        "GERRIT_BRANCH": "main",
+        "GERRIT_CHANGE_ID": "Ichange_id",
+        "GERRIT_CHANGE_NUMBER": "1",
+        "GERRIT_CHANGE_URL": "https://foo.bar/r/c/example/+/1",
+        "GERRIT_EVENT_TYPE": "test",
+        "GERRIT_PATCHSET_NUMBER": "1",
+        "GERRIT_PATCHSET_REVISION": "foo",
+        "GERRIT_PROJECT": "example/project",
+        "GERRIT_REFSPEC": "refs/heads/main",
+    }
+
+    with open(REPLICATION_REMOTES_GITHUB) as remotes:
+        replication_remotes = json.load(remotes)
+
+    mocker.patch(
+        "gerrit_to_platform.helpers.get_replication_remotes",
+        return_value=replication_remotes,
+    )
+
+    def mock_filter_workflows(
+        owner: str, repo: str, search_filter: str
+    ) -> List[Dict[str, str]]:
+        """Mock of filter_workflows."""
+        filter_file = VERIFY_FILTERED_WORKFLOWS
+        if search_filter == "merge":
+            filter_file = MERGE_FILTERED_WORKFLOWS
+
+        with open(filter_file) as workflows:
+            return json.load(workflows)
+
+    def mock_choose_filter_workflows(platform: Platform) -> Union[Callable, None]:
+        """Mock of choose_filter_workflows."""
+        if platform == Platform.GITHUB:
+            return mock_filter_workflows
+
+        return None
+
+    mocker.patch.object(
+        gerrit_to_platform.helpers,
+        "choose_filter_workflows",
+        mock_choose_filter_workflows,
+    )
+
+    def mock_dispatch_workflow(
+        owner: str, repository: str, workflow_id: str, ref: str, inputs: Dict[str, str]
+    ) -> Any:
+        """Mock of dispach_workflow"""
+        return {}
+
+    def mock_choose_dispatch(platform: Platform) -> Union[Callable, None]:
+        """Mock of choose_dispacth."""
+        if platform == Platform.GITHUB:
+            return mock_dispatch_workflow
+
+        return None
+
+    mocker.patch.object(
+        gerrit_to_platform.helpers,
+        "choose_dispatch",
+        mock_choose_dispatch,
+    )
+
+    find_and_dispatch("example-project", "verify", inputs)
+    actual = capfd.readouterr().out
+    assert PATCH1_VERIFY in actual
+    assert PATCH1_CHECK_MAIN in actual
+
+    find_and_dispatch("example-project", "merge", inputs)
+    actual = capfd.readouterr().out
+    assert CHANGE2_MERGE in actual
+
+    with open(REPLICATION_REMOTES_GITLAB) as remotes:
+        replication_remotes = json.load(remotes)
+    mocker.patch(
+        "gerrit_to_platform.helpers.get_replication_remotes",
+        return_value=replication_remotes,
+    )
+    find_and_dispatch("example-project", "verify", inputs)
+    actual = capfd.readouterr().out
+    assert PATCH1_VERIFY not in actual
+    assert PATCH1_CHECK_MAIN not in actual
+    assert actual == ""
 
 
 def test_get_change_id(mocker):
