@@ -9,15 +9,10 @@
 ##############################################################################
 """Handler for patchset-created events."""
 
-from typing import Dict, List
-
 import typer
 
-from gerrit_to_platform.config import Platform, get_replication_remotes
 from gerrit_to_platform.helpers import (
-    choose_dispatch,
-    choose_filter_workflows,
-    convert_repo_name,
+    find_and_dispatch,
     get_change_id,
     get_change_number,
     get_change_refspec,
@@ -59,31 +54,7 @@ def patchset_created(
         "GERRIT_REFSPEC": refspec,
     }
 
-    remotes = get_replication_remotes()
-    for platform in Platform:
-        if platform.value in remotes.keys():
-            dispatcher = choose_dispatch(Platform(platform.value))
-            filter_workflows = choose_filter_workflows(Platform(platform.value))
-
-            if not (dispatcher is None or filter_workflows is None):
-                for remote in remotes[platform.value].keys():
-                    verify_workflows: List[Dict[str, str]] = []
-                    owner = remotes[platform.value][remote]["owner"]
-                    repo = convert_repo_name(
-                        remotes, Platform(platform.value), remote, project
-                    )
-
-                    verify_workflows = filter_workflows(owner, repo, "verify")  # type: ignore
-                    for workflow in verify_workflows:
-                        print(
-                            f"Dispatching workflow '{workflow['name']}', "
-                            + f"id {workflow['id']} on "
-                            + f"{platform.value}:{owner}/{repo} for change "
-                            + f"{change_number} patch {patchset}"
-                        )
-                        dispatcher(
-                            owner, repo, workflow["id"], f"refs/heads/{branch}", inputs
-                        )
+    find_and_dispatch(project, "verify", inputs)
 
 
 if __name__ == "__main__":
