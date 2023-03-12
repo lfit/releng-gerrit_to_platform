@@ -11,6 +11,12 @@
 
 import typer
 
+from gerrit_to_platform.helpers import (
+    find_and_dispatch,
+    get_change_id,
+    get_change_number,
+)
+
 app = typer.Typer()
 
 
@@ -29,6 +35,29 @@ def change_merged(
     newrev: str = typer.Option(..., help="sha1"),
 ):
     """Handle change-merged hook."""
+
+    change_id = get_change_id(change)
+    change_number = get_change_number(change_url)
+
+    # Merges are always against the branch and the patchset doesn't matter
+    # Plus, the change-merged hook does not provide it and would require
+    # looping back into the Gerrit API to retrieve
+    patchset = "1"
+    refspec = f"refs/heads/{branch}"
+
+    inputs = {
+        "GERRIT_BRANCH": branch,
+        "GERRIT_CHANGE_ID": change_id,
+        "GERRIT_CHANGE_NUMBER": change_number,
+        "GERRIT_CHANGE_URL": change_url,
+        "GERRIT_EVENT_TYPE": "change-merged",
+        "GERRIT_PATCHSET_NUMBER": patchset,
+        "GERRIT_PATCHSET_REVISION": commit,
+        "GERRIT_PROJECT": project,
+        "GERRIT_REFSPEC": refspec,
+    }
+
+    find_and_dispatch(project, "merge", inputs)
 
 
 if __name__ == "__main__":
