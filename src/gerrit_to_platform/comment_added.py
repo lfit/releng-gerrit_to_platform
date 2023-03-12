@@ -10,15 +10,12 @@
 """Handler for patchset-created events."""
 
 import re
-from typing import Dict, List
 
 import typer
 
-from gerrit_to_platform.config import Platform, get_mapping, get_replication_remotes
+from gerrit_to_platform.config import get_mapping
 from gerrit_to_platform.helpers import (
-    choose_dispatch,
-    choose_filter_workflows,
-    convert_repo_name,
+    find_and_dispatch,
     get_change_id,
     get_change_number,
     get_change_refspec,
@@ -79,37 +76,11 @@ def comment_added(
     if mapping is None:
         return
 
-    remotes = get_replication_remotes()
-
-    for platform in Platform:
-        if platform.value not in remotes:
+    for mapper in mapping:
+        if not re.findall(mapper, comment):
             continue
 
-        dispatcher = choose_dispatch(Platform(platform.value))
-        filter_workflows = choose_filter_workflows(Platform(platform.value))
-
-        if dispatcher is None or filter_workflows is None:
-            continue
-
-        for remote in remotes[platform.value]:
-            workflows: List[Dict[str, str]] = []
-            owner = remotes[platform.value][remote]["owner"]
-            repo = convert_repo_name(remotes, Platform(platform.value), remote, project)
-            for mapper in mapping:
-                if not re.findall(mapper, comment):
-                    continue
-
-                workflows = filter_workflows(owner, repo, mapping[mapper])
-                for workflow in workflows:
-                    print(
-                        f"Dispatching workflow '{workflow['name']}', "
-                        + f"id {workflow['id']} on "
-                        + f"{platform.value}:{owner}/{repo} for change "
-                        + f"{change_number} patch {patchset}"
-                    )
-                    dispatcher(
-                        owner, repo, workflow["id"], f"refs/heads/{branch}", inputs
-                    )
+        find_and_dispatch(project, mapping[mapper], inputs)
 
 
 if __name__ == "__main__":
