@@ -89,3 +89,9 @@ repos:
     rev: v1.0.0
     hooks:
       - id: mypy
+
+  - repo: https://github.com/btford/write-good
+    rev: v1.0.8
+    hooks:
+      - id: write-good
+        files: "\\.(rst|md|markdown|mdown|mkdn)$"
