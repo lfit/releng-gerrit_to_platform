@@ -1,28 +1,3 @@
-.. todo:: THIS IS SUPPOSED TO BE AN EXAMPLE. MODIFY IT ACCORDING TO YOUR NEEDS!
-
-   The document assumes you are using a source repository service that promotes a
-   contribution model similar to `GitHub's fork and pull request workflow`_.
-   While this is true for the majority of services (like GitHub, GitLab,
-   BitBucket), it might not be the case for private repositories (e.g., when
-   using Gerrit).
-
-   Also notice that the code examples might refer to GitHub URLs or the text
-   might use GitHub specific terminology (e.g., *Pull Request* instead of *Merge
-   Request*).
-
-   Please make sure to check the document having these assumptions in mind
-   and update things accordingly.
-
-.. todo:: Provide the correct links/replacements at the bottom of the document.
-
-.. todo:: You might want to have a look on `PyScaffold's contributor's guide`_,
-
-   especially if your project is open source. The text should be very similar to
-   this template, but there are a few extra contents that you might decide to
-   also include, like mentioning labels of your issue tracker or automated
-   releases.
-
-
 ============
 Contributing
 ============
@@ -33,64 +8,45 @@ This document focuses on getting any potential contributor familiarized
 with the development processes, but `other kinds of contributions`_ are also
 appreciated.
 
-If you are new to using git_ or have never collaborated in a project previously,
-please have a look at `contribution-guide.org`_. Other resources are also
-listed in the excellent `guide created by FreeCodeCamp`_ [#contrib1]_.
+If you are new to using git_ or have never collaborated in a project, please
+have a look at `contribution-guide.org`_. Other resources are also listed in
+the `guide created by FreeCodeCamp`_ [#contrib1]_.
 
-Please notice, all users and contributors are expected to be **open,
+Please notice, we expect all users and contributors to be **open,
 considerate, reasonable, and respectful**. When in doubt, `Python Software
-Foundation's Code of Conduct`_ is a good reference in terms of behavior
+Foundation's Code of Conduct`_ is a good reference on terms of behavior
 guidelines.
 
 
 Issue Reports
 =============
 
-If you experience bugs or general issues with ``gerrit_to_platform``, please have a look
-on the `issue tracker`_. If you don't see anything useful there, please feel
-free to fire an issue report.
+If you experience bugs or general issues with ``gerrit_to_platform``, please
+have a look on the `issue tracker`_. If you don't see anything useful there,
+please feel free to fire an issue report.
 
 .. tip::
    Please don't forget to include the closed issues in your search.
-   Sometimes a solution was already reported, and the problem is considered
+   Sometimes a solution was already reported, and the problem now considered
    **solved**.
 
 New issue reports should include information about your programming environment
 (e.g., operating system, Python version) and steps to reproduce the problem.
-Please try also to simplify the reproduction steps to a very minimal example
-that still illustrates the problem you are facing. By removing other factors,
-you help us to identify the root cause of the issue.
+Please try also to simplify the reproduction steps to a minimal example that
+still illustrates the problem you are facing. By removing other factors, you
+help us to identify the root cause of the issue.
 
 
 Documentation Improvements
 ==========================
 
-You can help improve ``gerrit_to_platform`` docs by making them more readable and coherent, or
-by adding missing information and correcting mistakes.
+You can help improve ``gerrit_to_platform`` docs by making them more readable
+and coherent, or by adding missing information and correcting mistakes.
 
-``gerrit_to_platform`` documentation uses Sphinx_ as its main documentation compiler.
-This means that the docs are kept in the same repository as the project code, and
-that any documentation update is done in the same way was a code contribution.
-
-.. todo:: Don't forget to mention which markup language you are using.
-
-    e.g.,  reStructuredText_ or CommonMark_ with MyST_ extensions.
-
-.. todo:: If your project is hosted on GitHub, you can also mention the following tip:
-
-   .. tip::
-      Please notice that the `GitHub web interface`_ provides a quick way of
-      propose changes in ``gerrit_to_platform``'s files. While this mechanism can
-      be tricky for normal code contributions, it works perfectly fine for
-      contributing to the docs, and can be quite handy.
-
-      If you are interested in trying this method out, please navigate to
-      the ``docs`` folder in the source repository_, find which file you
-      would like to propose changes and click in the little pencil icon at the
-      top, to open `GitHub's code editor`_. Once you finish editing the file,
-      please write a message in the form at the bottom of the page describing
-      which changes have you made and what are the motivations behind them and
-      submit your proposal.
+``gerrit_to_platform`` documentation uses Sphinx_ as its main documentation
+compiler.  This means that the docs are in the same repository as the project
+code, and that any documentation update has code review in the same way as a
+code contribution.
 
 When working on documentation changes in your local machine, you can
 compile them using |tox|_::
@@ -106,25 +62,22 @@ and use Python's built-in web server for a preview in your web browser
 Code Contributions
 ==================
 
-.. todo:: Please include a reference or explanation about the internals of the project.
-
-   An architecture description, design principles or at least a summary of the
-   main concepts will make it easy for potential contributors to get started
-   quickly.
+`Test-Drive Development`_ is the driving method of development of this code
+base. All contributions must come with supporting test cases.
 
 Submit an issue
 ---------------
 
 Before you work on any non-trivial code contribution it's best to first create
-a report in the `issue tracker`_ to start a discussion on the subject.
-This often provides additional considerations and avoids unnecessary work.
+a report in the `issue tracker`_ to start a discussion on the subject.  This
+often provides considerations and avoids unnecessary work.
 
 Create an environment
 ---------------------
 
 Before you start coding, we recommend creating an isolated `virtual
 environment`_ to avoid any problems with your installed Python packages.
-This can easily be done via either |virtualenv|_::
+Do this via either |virtualenv|_::
 
     virtualenv <PATH TO VENV>
     source <PATH TO VENV>/bin/activate
@@ -155,13 +108,12 @@ Clone the repository
 
 #. Install |pre-commit|_::
 
-    pip install pre-commit
-    pre-commit install
+    pip install pre-commit && pre-commit install
 
    ``gerrit_to_platform`` comes with a lot of hooks configured to automatically help the
-   developer to check the code being written.
+   developer to check the code during creation.
 
-Implement your changes
+Create your changes
 ----------------------
 
 #. Create a branch to hold your changes::
@@ -171,7 +123,7 @@ Implement your changes
    and start making changes. Never work on the main branch!
 
 #. Start your work on this branch. Don't forget to add docstrings_ to new
-   functions, modules and classes, especially if they are part of public APIs.
+   functions, modules and classes.
 
 #. Add yourself to the list of contributors in ``AUTHORS.rst``.
 
@@ -190,7 +142,7 @@ Implement your changes
    in a way that is compatible with the project.
 
    .. important:: Don't forget to add unit tests and documentation in case your
-      contribution adds an additional feature and is not just a bugfix.
+      contribution adds a feature and is not a bugfix.
 
       Moreover, writing a `descriptive commit message`_ is highly recommended.
       In case of doubt, you can check the commit history with::
@@ -205,8 +157,8 @@ Implement your changes
 
    (after having installed |tox|_ with ``pip install tox`` or ``pipx``).
 
-   You can also use |tox|_ to run several other pre-configured tasks in the
-   repository. Try ``tox -av`` to see a list of the available checks.
+   You can also use |tox|_ to run other pre-configured tasks in the repository.
+   Try ``tox -av`` to see a list of the available checks.
 
 Submit your contribution
 ------------------------
@@ -228,7 +180,7 @@ Submit your contribution
 Troubleshooting
 ---------------
 
-The following tips can be used when facing problems to build or test the
+The following tips can are helpful when facing problems to build or test the
 package:
 
 #. Make sure to fetch all the tags from the upstream repository_.
@@ -239,10 +191,10 @@ package:
    ``.eggs``, as well as the ``*.egg-info`` folders in the ``src`` folder or
    potentially in the root of your project.
 
-#. Sometimes |tox|_ misses out when new dependencies are added, especially to
-   ``setup.cfg`` and ``docs/requirements.txt``. If you find any problems with
-   missing dependencies when running a command with |tox|_, try to recreate the
-   ``tox`` environment using the ``-r`` flag. For example, instead of::
+#. Sometimes |tox|_ misses out when adding new dependencies to ``setup.cfg``
+   and ``docs/requirements.txt``. If you find any problems with missing
+   dependencies when running a command with |tox|_, try to recreate the ``tox``
+   environment using the ``-r`` flag. For example, instead of::
 
     tox -e docs
 
@@ -266,10 +218,10 @@ package:
     .venv/bin/pip install tox
     .venv/bin/tox -e all
 
-#. `Pytest can drop you`_ in an interactive session in the case an error occurs.
-   In order to do that you need to pass a ``--pdb`` option (for example by
-   running ``tox -- -k <NAME OF THE FALLING TEST> --pdb``).
-   You can also setup breakpoints manually instead of using the ``--pdb`` option.
+#. `Pytest can drop you`_ in an interactive session in the case an error
+   occurs.  To do that you need to pass a ``--pdb`` option (for example by
+   running ``tox -- -k <NAME OF THE FALLING TEST> --pdb``).  You can also setup
+   breakpoints manually instead of using the ``--pdb`` option.
 
 
 Maintainer tasks
@@ -284,7 +236,7 @@ Releases
    the instructions accordingly.
 
 If you are part of the group of maintainers and have correct user permissions
-on PyPI_, the following steps can be used to release a new version for
+on PyPI_, the following steps can release a new version for
 ``gerrit_to_platform``:
 
 #. Make sure all unit tests are successful.
@@ -296,26 +248,26 @@ on PyPI_, the following steps can be used to release a new version for
 #. Run ``tox -e build`` and check that the files in ``dist`` have
    the correct version (no ``.dirty`` or git_ hash) according to the git_ tag.
    Also check the sizes of the distributions, if they are too big (e.g., >
-   500KB), unwanted clutter may have been accidentally included.
-#. Run ``tox -e publish -- --repository pypi`` and check that everything was
-   uploaded to PyPI_ correctly.
+   500KB). Verify that there is no unwanted clutter.
+#. Run ``tox -e publish -- --repository pypi`` and check that everything
+   uploaded to PyPI_.
 
 
 
 .. [#contrib1] Even though, these resources focus on open source projects and
    communities, the general ideas behind collaborating with other developers
-   to collectively create software are general and can be applied to all sorts
+   to collectively create software are general and are applicable to all sorts
    of environments, including private companies and proprietary code bases.
 
 
 .. <-- start -->
 .. todo:: Please review and change the following definitions:
 
-.. |the repository service| replace:: GitHub
+.. |the repository service| replace:: Gerrit
 .. |contribute button| replace:: "Create pull request"
 
-.. _repository: https://github.com/<USERNAME>/gerrit_to_platform
-.. _issue tracker: https://github.com/<USERNAME>/gerrit_to_platform/issues
+.. _repository: https://github.com/lfit/releng-gerrit_to_platform
+.. _issue tracker: https://github.com/lfit/releng-gerrit_to_platform/issues
 .. <-- end -->
 
 
@@ -351,3 +303,4 @@ on PyPI_, the following steps can be used to release a new version for
 
 .. _GitHub web interface: https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files
 .. _GitHub's code editor: https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files
+.. _Test-Drive Development: https://en.wikipedia.org/wiki/Test-driven_development
