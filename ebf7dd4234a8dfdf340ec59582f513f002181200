@@ -33,6 +33,24 @@
       "message": "triggering",
       "revId": "ebf7dd4234a8dfdf340ec59582f513f002181200",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb4ed636_ced0d444",
+        "filename": "README.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2023-03-23T15:51:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae3885e6_d6ea3e2c",
+      "revId": "ebf7dd4234a8dfdf340ec59582f513f002181200",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     }
   ]
 }
