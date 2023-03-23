@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "990ecd6c_0a9b3fa6",
+        "filename": "CONTRIBUTING.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 577
+      },
+      "writtenOn": "2023-03-23T19:08:26Z",
+      "side": 1,
+      "message": "this has an extra whitespace before \"To do that...\"",
+      "revId": "7f56d3c8c0cfc639a95cf34e3058c7e0b260651b",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
