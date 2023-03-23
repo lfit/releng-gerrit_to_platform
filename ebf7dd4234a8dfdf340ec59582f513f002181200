@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5452233_39a58025",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 214
+      },
+      "writtenOn": "2023-03-23T14:19:48Z",
+      "side": 1,
+      "message": "Very minor nitpick",
+      "revId": "ebf7dd4234a8dfdf340ec59582f513f002181200",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae3885e6_d6ea3e2c",
+        "filename": "README.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 214
+      },
+      "writtenOn": "2023-03-23T14:19:48Z",
+      "side": 1,
+      "message": "triggering",
+      "revId": "ebf7dd4234a8dfdf340ec59582f513f002181200",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
