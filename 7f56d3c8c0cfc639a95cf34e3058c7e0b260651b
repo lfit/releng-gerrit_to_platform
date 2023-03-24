@@ -34,6 +34,24 @@
       "parentUuid": "990ecd6c_0a9b3fa6",
       "revId": "7f56d3c8c0cfc639a95cf34e3058c7e0b260651b",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2546a377_7e399761",
+        "filename": "CONTRIBUTING.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 577
+      },
+      "writtenOn": "2023-03-24T00:36:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5984577e_62cffe2f",
+      "revId": "7f56d3c8c0cfc639a95cf34e3058c7e0b260651b",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     }
   ]
 }
