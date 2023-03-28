@@ -7,9 +7,13 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from typing import Any, Dict
+
 import os
 import sys
 import shutil
+
+from docs_conf.conf import *  # type: ignore
 
 # -- Path setup --------------------------------------------------------------
 
@@ -29,9 +33,9 @@ sys.path.insert(0, os.path.join(__location__, "../src"))
 # Additionally it helps us to avoid running apidoc manually
 
 try:  # for Sphinx >= 1.7
-    from sphinx.ext import apidoc
+    from sphinx.ext import apidoc  # type: ignore
 except ImportError:
-    from sphinx import apidoc
+    from sphinx import apidoc  # type: ignore
 
 output_dir = os.path.join(__location__, "api")
 module_dir = os.path.join(__location__, "../src/gerrit_to_platform")
@@ -100,7 +104,7 @@ copyright = "2023, The Linux Foundation"
 # If you don’t need the separation provided between version and release,
 # just set them both to the same value.
 try:
-    from gerrit_to_platform import __version__ as version
+    from gerrit_to_platform import __version__ as version  # type: ignore
 except ImportError:
     version = ""
 
@@ -154,15 +158,15 @@ todo_emit_warnings = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "alabaster"
+# html_theme = "alabaster"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    "sidebar_width": "300px",
-    "page_width": "1200px"
-}
+# html_theme_options = {
+#     "sidebar_width": "300px",
+#     "page_width": "1200px"
+# }
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -235,7 +239,7 @@ htmlhelp_basename = "gerrit_to_platform-doc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[Any, Any] = {
     # The paper size ("letterpaper" or "a4paper").
     # "papersize": "letterpaper",
     # The font size ("10pt", "11pt" or "12pt").
