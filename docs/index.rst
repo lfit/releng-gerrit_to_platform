@@ -1,8 +1,8 @@
 ==================
-gerrit_to_platform
+gerrit-to-platform
 ==================
 
-This is the documentation of **gerrit_to_platform**.
+This is the documentation of **gerrit-to-platform**.
 
 
 Contents
