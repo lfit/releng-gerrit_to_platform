@@ -32,7 +32,7 @@
 |
 
 ==================
-gerrit_to_platform
+gerrit-to-platform
 ==================
 
 

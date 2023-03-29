@@ -92,7 +92,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "gerrit_to_platform"
+project = "gerrit-to-platform"
 copyright = "2023, The Linux Foundation"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -251,7 +251,7 @@ latex_elements: Dict[Any, Any] = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "gerrit_to_platform Documentation", "Andrew Grimberg", "manual")
+    ("index", "user_guide.tex", "gerrit-to-platform Documentation", "Andrew Grimberg", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
