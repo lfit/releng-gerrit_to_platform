@@ -1,5 +1,5 @@
 [project]
-name = "gerrit_to_platform"
+name = "gerrit-to-platform"
 # version = "0.0.1"
 dynamic = ["version"]
 description = "Gerrit to GitHub / GitLab"
