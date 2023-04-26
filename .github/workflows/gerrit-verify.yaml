@@ -74,8 +74,9 @@ jobs:
         id: get_actionlint
         # yamllint disable rule:line-length
         run: |
-          mkdir ~/bin
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest ~/bin/
+          mkdir "$HOME/bin"
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest "$HOME/bin/"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
         shell: bash
         # yamllint enable rule:line-length
       - name: Run static analysis and format checkers
