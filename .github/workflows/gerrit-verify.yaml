@@ -64,12 +64,20 @@ jobs:
           gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
           gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
           vote-type: clear
-      - uses: lfit/checkout-gerrit-change-action@v0.2
+      - uses: lfit/checkout-gerrit-change-action@v0.3
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
+      - name: Download actionlint
+        id: get_actionlint
+        # yamllint disable rule:line-length
+        run: |
+          mkdir ~/bin
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest ~/bin/
+        shell: bash
+        # yamllint enable rule:line-length
       - name: Run static analysis and format checkers
         run: pipx run pre-commit run --all-files --show-diff-on-failure
       - name: Build package distribution files
@@ -77,7 +85,7 @@ jobs:
           pipx run tox -e clean,build
       - name: Record the path of wheel distribution
         id: wheel-distribution
-        run: echo "path=$(ls dist/*.whl)" >> $GITHUB_OUTPUT
+        run: echo "path=$(ls dist/*.whl)" >> "$GITHUB_OUTPUT"
       - name: Store the distribution files for use in other stages
         # `tests` and `publish` will use the same pre-built distributions,
         # so we make sure to release the exact same package that was tested
@@ -97,7 +105,7 @@ jobs:
           - ubuntu-latest
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: lfit/checkout-gerrit-change-action@v0.2
+      - uses: lfit/checkout-gerrit-change-action@v0.3
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
