@@ -49,10 +49,8 @@ concurrency:
 
 
 jobs:
-  prepare:
+  clear-vote:
     runs-on: ubuntu-latest
-    outputs:
-      wheel-distribution: ${{ steps.wheel-distribution.outputs.path }}
     steps:
       - name: Clear votes
         uses: lfit/gerrit-review-action@v0.3
@@ -64,23 +62,55 @@ jobs:
           gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
           gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
           vote-type: clear
+      - name: Allow replication
+        run: sleep 10s
+
+  actionlint:
+    needs: clear-vote
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lfit/checkout-gerrit-change-action@v0.3
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+          delay: "0s"
+      - name: Download actionlint
+        id: get_actionlint
+        # yamllint disable-line rule:line-length
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        shell: bash
+      - name: Check workflow files
+        run: ${{ steps.get_actionlint.outputs.executable }} -color
+        shell: bash
+
+
+  pre-commit:
+    needs: clear-vote
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout change
+        uses: lfit/checkout-gerrit-change-action@v0.3
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+          delay: "0s"
+      - name: Configure Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Run static analysis and format checkers
+        # yamllint disable-line rule:line-length
+        run: SKIP=actionlint pipx run pre-commit run --all-files --show-diff-on-failure
+
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      wheel-distribution: ${{ steps.wheel-distribution.outputs.path }}
+    steps:
       - uses: lfit/checkout-gerrit-change-action@v0.3
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - name: Download actionlint
-        id: get_actionlint
-        # yamllint disable rule:line-length
-        run: |
-          mkdir "$HOME/bin"
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest "$HOME/bin/"
-          echo "$HOME/bin" >> "$GITHUB_PATH"
-        shell: bash
-        # yamllint enable rule:line-length
-      - name: Run static analysis and format checkers
-        run: pipx run pre-commit run --all-files --show-diff-on-failure
       - name: Build package distribution files
         run: >-
           pipx run tox -e clean,build
@@ -146,7 +176,7 @@ jobs:
 
   vote:
     if: ${{ always() }}
-    needs: [prepare, test, finalize]
+    needs: [clear-vote, actionlint, pre-commit, prepare, test, finalize]
     runs-on: ubuntu-latest
     steps:
       - uses: technote-space/workflow-conclusion-action@v3
