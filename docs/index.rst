@@ -4,9 +4,26 @@ gerrit-to-platform
 
 This is the documentation of **gerrit-to-platform**.
 
+This documentation describes how to onboard a new project and troubleshooting common issues.
+The documents also contain information on featured workflows developed by the LFIT team.
 
 Contents
 ========
+
+Guides
+------
+
+.. toctree::
+   :maxdepth: 2
+
+   onboard
+   required-vars-secrets
+   troubleshooting
+   glossary
+   appendix
+
+Release and Coolaboration
+-------------------------
 
 .. toctree::
    :maxdepth: 2
