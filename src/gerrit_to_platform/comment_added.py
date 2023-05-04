@@ -12,6 +12,7 @@
 import re
 
 import typer
+from typing_extensions import Annotated
 
 from gerrit_to_platform.config import get_mapping
 from gerrit_to_platform.helpers import (
@@ -29,17 +30,17 @@ app = typer.Typer()
 )
 def comment_added(
     context: typer.Context,
-    change: str = typer.Option(..., help="change id"),
-    change_url: str = typer.Option(..., help="change url"),
-    change_owner: str = typer.Option(..., help="change owner"),
-    change_owner_username: str = typer.Option(..., help="username"),
-    project: str = typer.Option(..., help="project name"),
-    branch: str = typer.Option(..., help="branch"),
-    topic: str = typer.Option(..., help="topic"),
-    author: str = typer.Option(..., help="comment author"),
-    author_username: str = typer.Option(..., help="username"),
-    commit: str = typer.Option(..., help="sha1"),
-    comment: str = typer.Option(..., help="comment"),
+    change: Annotated[str, typer.Option(help="change id")],
+    change_url: Annotated[str, typer.Option(help="change url")],
+    change_owner: Annotated[str, typer.Option(help="change owner")],
+    change_owner_username: Annotated[str, typer.Option(help="username")],
+    project: Annotated[str, typer.Option(help="project name")],
+    branch: Annotated[str, typer.Option(help="branch")],
+    topic: Annotated[str, typer.Option(help="topic")],
+    author: Annotated[str, typer.Option(help="comment author")],
+    author_username: Annotated[str, typer.Option(help="username")],
+    commit: Annotated[str, typer.Option(help="sha1")],
+    comment: Annotated[str, typer.Option(help="comment")],
 ):
     """
     Handle comment-added hook.
