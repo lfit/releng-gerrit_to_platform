@@ -10,6 +10,7 @@
 """Handler for patchset-created events."""
 
 import typer
+from typing_extensions import Annotated
 
 from gerrit_to_platform.helpers import (
     find_and_dispatch,
@@ -23,18 +24,18 @@ app = typer.Typer()
 
 @app.command()
 def patchset_created(
-    change: str = typer.Option(..., help="change id"),
-    kind: str = typer.Option(..., help="change kind"),
-    change_url: str = typer.Option(..., help="change url"),
-    change_owner: str = typer.Option(..., help="change owner"),
-    change_owner_username: str = typer.Option(..., help="username"),
-    project: str = typer.Option(..., help="project name"),
-    branch: str = typer.Option(..., help="branch"),
-    topic: str = typer.Option(..., help="topic"),
-    uploader: str = typer.Option(..., help="uploader"),
-    uploader_username: str = typer.Option(..., help="username"),
-    commit: str = typer.Option(..., help="sha1"),
-    patchset: str = typer.Option(..., help="patchset id"),
+    change: Annotated[str, typer.Option(help="change id")],
+    kind: Annotated[str, typer.Option(help="change kind")],
+    change_url: Annotated[str, typer.Option(help="change url")],
+    change_owner: Annotated[str, typer.Option(help="change owner")],
+    change_owner_username: Annotated[str, typer.Option(help="username")],
+    project: Annotated[str, typer.Option(help="project name")],
+    branch: Annotated[str, typer.Option(help="branch")],
+    topic: Annotated[str, typer.Option(help="topic")],
+    uploader: Annotated[str, typer.Option(help="uploader")],
+    uploader_username: Annotated[str, typer.Option(help="username")],
+    commit: Annotated[str, typer.Option(help="sha1")],
+    patchset: Annotated[str, typer.Option(help="patchset id")],
 ):
     """Handle patcheset-created hook."""
 
