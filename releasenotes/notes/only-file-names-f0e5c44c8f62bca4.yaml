@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Only workflow files will be searched for relevant jobs to job. They must
+    now also contain 'gerrit' in the filename.

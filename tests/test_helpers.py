@@ -49,6 +49,10 @@ REPLICATION_REMOTES_GITLAB = os.path.join(
     FIXTURE_DIR, "limited_replication_remotes_return_gitlab.json"
 )
 
+PATCH1_GERRIT_VERIFY = (
+    "Dispatching workflow 'Gerrit Verify', id 20937807 on "
+    + "github:example/example-project for change 1 patch 1"
+)
 PATCH1_VERIFY = (
     "Dispatching workflow 'Verify', id 18525370 on "
     + "github:example/example-project for change 1 patch 1"
@@ -58,7 +62,7 @@ PATCH1_CHECK_MAIN = (
     + "github:example/example-project for change 1 patch 1"
 )
 CHANGE2_MERGE = (
-    "Dispatching workflow 'Merge', id 18525370 on "
+    "Dispatching workflow 'Gerrit Merge', id 18525370 on "
     + "github:example/example-project for change 1 patch 1"
 )
 
@@ -175,8 +179,9 @@ def test_find_and_dispatch(mocker, capfd):
 
     find_and_dispatch("example-project", "verify", inputs)
     actual = capfd.readouterr().out
-    assert PATCH1_VERIFY in actual
-    assert PATCH1_CHECK_MAIN in actual
+    assert PATCH1_GERRIT_VERIFY in actual
+    assert PATCH1_VERIFY not in actual
+    assert PATCH1_CHECK_MAIN not in actual
 
     find_and_dispatch("example-project", "merge", inputs)
     actual = capfd.readouterr().out
@@ -190,6 +195,7 @@ def test_find_and_dispatch(mocker, capfd):
     )
     find_and_dispatch("example-project", "verify", inputs)
     actual = capfd.readouterr().out
+    assert PATCH1_GERRIT_VERIFY not in actual
     assert PATCH1_VERIFY not in actual
     assert PATCH1_CHECK_MAIN not in actual
     assert actual == ""

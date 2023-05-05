@@ -38,9 +38,8 @@ def filter_workflows(
     filtered_workflows: List[Dict[str, str]] = []
 
     for workflow in workflows:
-        name = workflow["name"].lower()
         path = workflow["path"].lower()
-        if name.find(search_filter) >= 0 or path.find(search_filter) >= 0:
+        if path.find(search_filter) >= 0 and path.find("gerrit") >= 0:
             filtered_workflows.append(workflow)
 
     return filtered_workflows
