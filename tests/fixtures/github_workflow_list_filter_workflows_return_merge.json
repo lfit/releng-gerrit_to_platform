@@ -1,7 +1,7 @@
 [
   {
     "id": 18525370,
-    "name": "Merge",
-    "path": ".github/workflows/merge.yaml"
+    "name": "Gerrit Merge",
+    "path": ".github/workflows/gerrit-merge.yaml"
   }
 ]

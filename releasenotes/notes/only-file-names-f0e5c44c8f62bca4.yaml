@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    Only workflow files will be searched for relevant jobs to execute. They
+    must now also contain 'gerrit' in the filename.
+
+    ex gerrit-verify.yaml or verify-gerrit.yaml instead of a verify.yaml
