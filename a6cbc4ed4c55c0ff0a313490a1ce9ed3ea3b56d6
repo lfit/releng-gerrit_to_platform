@@ -35,6 +35,24 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f0c300f_fee05b4d",
+        "filename": "docs/appendix.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9327c657_0ecc5534",
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd526b3e_8b711cf9",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-05-03T17:57:28Z",
       "side": 1,
       "message": "Technically this has nothing to G2P itself. It shouldn\u0027t be in the G2P docs. If anything we should have a completely Separate setup guide that covers LF specific configuration that lives in the Release Engineering docs repository.",
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7878b6c1_a2b04c27",
+        "filename": "docs/glossary.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd526b3e_8b711cf9",
       "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
@@ -92,6 +128,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bba83d0f_3a3cfe70",
+        "filename": "docs/index.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcc269eb_f666d2f7",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 11
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1c0cdcc_ed599179",
@@ -105,6 +165,30 @@
       "writtenOn": "2023-05-03T17:57:28Z",
       "side": 1,
       "message": "Puppet should not be mentioned in the general Gerrit-To-Platform docs",
+      "range": {
+        "startLine": 5,
+        "startChar": 61,
+        "endLine": 5,
+        "endChar": 76
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "019ab616_ce8db69e",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1c0cdcc_ed599179",
       "range": {
         "startLine": 5,
         "startChar": 61,
@@ -138,6 +222,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f19fd46_e9494184",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e61ca47_6d527403",
+      "range": {
+        "startLine": 12,
+        "startChar": 77,
+        "endLine": 12,
+        "endChar": 79
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03fba52f_1bad844d",
@@ -161,6 +269,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb8f28be_eac8146b",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03fba52f_1bad844d",
+      "range": {
+        "startLine": 40,
+        "startChar": 89,
+        "endLine": 40,
+        "endChar": 90
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a32240aa_a175b92d",
@@ -174,6 +306,30 @@
       "writtenOn": "2023-05-03T17:57:28Z",
       "side": 1,
       "message": "This is internal workflow documentation that should not live in the G2P",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 84
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca0f9bdf_defc8f21",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a32240aa_a175b92d",
       "range": {
         "startLine": 45,
         "startChar": 0,
@@ -230,6 +386,54 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47e3d1c8_e12a5f82",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eed1d2ac_af01a60a",
+      "range": {
+        "startLine": 68,
+        "startChar": 40,
+        "endLine": 68,
+        "endChar": 43
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a0853f5_4ebc8d6b",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2f9501c_702a68b1",
+      "range": {
+        "startLine": 68,
+        "startChar": 6,
+        "endLine": 68,
+        "endChar": 11
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5821d20f_9155750e",
@@ -243,6 +447,30 @@
       "writtenOn": "2023-05-03T17:57:28Z",
       "side": 1,
       "message": "Dangling whitespace",
+      "range": {
+        "startLine": 72,
+        "startChar": 35,
+        "endLine": 72,
+        "endChar": 36
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d13669ca_43e38d93",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5821d20f_9155750e",
       "range": {
         "startLine": 72,
         "startChar": 35,
@@ -270,6 +498,24 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34334379_f3a43cac",
+        "filename": "docs/required-vars-secrets.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "692c6368_c7294144",
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "812fe814_989968d7",
@@ -283,6 +529,24 @@
       "writtenOn": "2023-05-03T17:57:28Z",
       "side": 1,
       "message": "Technically these secrets and variables are not required to use Gerrit-To-Platform, they are required if using the Gerrit Voting GHA and Checkout GHA that I wrote. So the information really should move to the docs (that don\u0027t exist) for each of those.",
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5984071_57463ea2",
+        "filename": "docs/required-vars-secrets.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "812fe814_989968d7",
       "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
@@ -310,6 +574,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1454d4cf_f0e41282",
+        "filename": "docs/required-vars-secrets.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e41a283_fa031b77",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 76
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f916570_3c43b117",
@@ -323,6 +611,30 @@
       "writtenOn": "2023-05-03T17:57:28Z",
       "side": 1,
       "message": "These are not required variables. They are not technically part of Gerrit-To-Platform",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 63
+      },
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1ef7b25_0af7b840",
+        "filename": "docs/required-vars-secrets.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-05T20:04:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f916570_3c43b117",
       "range": {
         "startLine": 35,
         "startChar": 0,
