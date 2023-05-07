@@ -30,7 +30,7 @@ def dispatch_workflow(
 
 
 def filter_workflows(
-    owner: str, repository: str, search_filter: str
+    owner: str, repository: str, search_filter: str, search_required: bool = False
 ) -> List[Dict[str, str]]:
     """Return a case insensitive filtered list of workflows."""
     search_filter = search_filter.lower()
@@ -40,7 +40,11 @@ def filter_workflows(
     for workflow in workflows:
         path = workflow["path"].lower()
         if path.find(search_filter) >= 0 and path.find("gerrit") >= 0:
-            filtered_workflows.append(workflow)
+            if search_required:
+                if path.find("required") >= 0:
+                    filtered_workflows.append(workflow)
+            else:
+                filtered_workflows.append(workflow)
 
     return filtered_workflows
 
