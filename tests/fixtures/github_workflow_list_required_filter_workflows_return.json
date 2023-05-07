@@ -1,0 +1,7 @@
+[
+  {
+    "id": 20937808,
+    "name": "Required Gerrit Verify",
+    "path": ".github/workflows/gerrit-required-verify.yaml"
+  }
+]

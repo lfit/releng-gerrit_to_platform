@@ -43,17 +43,42 @@ def filter_path(search_filter: str, workflow: Dict[str, str]) -> bool:
 
 
 def filter_workflows(
-    owner: str, repository: str, search_filter: str
+    owner: str, repository: str, search_filter: str, search_required: bool = False
 ) -> List[Dict[str, str]]:
-    """Return a case insensitive filtered list of workflows."""
-    search_filter = search_filter.lower()
+    """
+    Return a case insensitive filtered list of workflows.
+
+    All workflows must meet the basic filtering of containing the search_filter
+    in the name as well as "gerrit" in the name.
+
+    If search_required is true, then the list will contiain all workflows that
+    contain "required" in the name
+
+    If search_required is false (the default), then the list will _exclude_ all
+    workflows that contain "required" in the name.
+    """
     workflows = get_workflows(owner, repository)
     filtered_workflows: List[Dict[str, str]] = []
 
-    for workflow in workflows:
-        path = workflow["path"].lower()
-        if path.find(search_filter) >= 0 and path.find("gerrit") >= 0:
-            filtered_workflows.append(workflow)
+    filtered_workflows = list(
+        filter(lambda workflow: filter_path(search_filter, workflow), workflows)
+    )
+    filtered_workflows = list(
+        filter(lambda workflow: filter_path("gerrit", workflow), filtered_workflows)
+    )
+    if search_required:
+        filtered_workflows = list(
+            filter(
+                lambda workflow: filter_path("required", workflow), filtered_workflows
+            )
+        )
+    else:
+        filtered_workflows = list(
+            filter(
+                lambda workflow: not filter_path("required", workflow),
+                filtered_workflows,
+            )
+        )
 
     return filtered_workflows
 
