@@ -5,6 +5,11 @@
     "path": ".github/workflows/gerrit-verify.yaml"
   },
   {
+    "id": 20937808,
+    "name": "Required Gerrit Verify",
+    "path": ".github/workflows/gerrit-required-verify.yaml"
+  },
+  {
     "id": 18525370,
     "name": "Verify",
     "path": ".github/workflows/verify.yaml"

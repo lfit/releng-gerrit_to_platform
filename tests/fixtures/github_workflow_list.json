@@ -26,6 +26,18 @@
       "badge_url": "https://github.com/example/example/workflows/gerrit-verify/badge.svg"
     },
     {
+      "id": 20937808,
+      "node_id": "W_kwDOFzVD3s5BZnjK",
+      "name": "Required Gerrit Verify",
+      "path": ".github/workflows/gerrit-required-verify.yaml",
+      "state": "active",
+      "created_at": "2022-01-18T21:49:30.000-08:00",
+      "updated_at": "2022-01-18T21:56:17.000-08:00",
+      "url": "https://api.github.com/repos/example/example/actions/workflows/20937808",
+      "html_url": "https://github.com/example/example/blob/main/.github/workflows/gerrit-required-verify.yaml",
+      "badge_url": "https://github.com/example/example/workflows/gerrit-required-verify/badge.svg"
+    },
+    {
       "id": 18525370,
       "node_id": "W_kwDOFzVD3s4BYhHK",
       "name": "Verify",
