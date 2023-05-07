@@ -53,6 +53,10 @@ GITHUB_FILTERED_LIST = os.path.join(
     FIXTURE_DIR, "github_workflow_list_filter_workflows_return.json"
 )
 
+GITHUB_REQUIRED_FILTERED_LIST = os.path.join(
+    FIXTURE_DIR, "github_workflow_list_required_filter_workflows_return.json"
+)
+
 
 def test_dispatch_workflow(mocker):
     """Test workflow triggering."""
@@ -137,4 +141,9 @@ def test_filter_workflows(mocker):
     )
 
     actual = filter_workflows("example", "repository", "verify")
+    assert expected == actual
+
+    with open(GITHUB_REQUIRED_FILTERED_LIST) as list_file:
+        expected = json.load(list_file)
+    actual = filter_workflows("example", "repository", "verify", True)
     assert expected == actual
