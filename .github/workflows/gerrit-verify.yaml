@@ -164,6 +164,29 @@ jobs:
           parallel: true
 
 
+  CodeQL:
+    needs: clear-vote
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - name: Checkout change
+        uses: lfit/checkout-gerrit-change-action@v0.3
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+          delay: "0s"
+      - name: Configure Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
   finalize:
     needs: test
     runs-on: ubuntu-latest
@@ -176,7 +199,7 @@ jobs:
 
   vote:
     if: ${{ always() }}
-    needs: [clear-vote, actionlint, pre-commit, prepare, test, finalize]
+    needs: [clear-vote, actionlint, pre-commit, prepare, test, finalize, CodeQL]
     runs-on: ubuntu-latest
     steps:
       - uses: technote-space/workflow-conclusion-action@v3
