@@ -123,6 +123,24 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cdde73b_d3f809a9",
+        "filename": "docs/index.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-15T18:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "380d6b32_850ffbdb",
+      "revId": "a6cbc4ed4c55c0ff0a313490a1ce9ed3ea3b56d6",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bcc269eb_f666d2f7",
