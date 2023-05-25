@@ -18,6 +18,24 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd1552f0_76937319",
+        "filename": "docs/index.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-25T19:23:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "272430dd_fc359188",
+      "revId": "3dd40d451165ab3b730507edb570ec39fb646578",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a529d34b_faa24b35",
@@ -41,6 +59,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a841dcdb_0461825d",
+        "filename": "docs/onboard.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-25T19:23:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a529d34b_faa24b35",
+      "range": {
+        "startLine": 43,
+        "startChar": 23,
+        "endLine": 43,
+        "endChar": 54
+      },
+      "revId": "3dd40d451165ab3b730507edb570ec39fb646578",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "237b75e0_520c657b",
@@ -54,6 +96,30 @@
       "writtenOn": "2023-05-25T18:52:32Z",
       "side": 1,
       "message": "This is not a common issue with Gerrit to Platform, it\u0027s more an issue with the lfit/gerrit-review-action",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "3dd40d451165ab3b730507edb570ec39fb646578",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e4dae26_10c2e1ba",
+        "filename": "docs/troubleshooting.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2023-05-25T19:23:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "237b75e0_520c657b",
       "range": {
         "startLine": 9,
         "startChar": 0,
