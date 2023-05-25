@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b7b00ad_13bb094a",
+        "filename": "docs/troubleshooting.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2023-05-25T19:58:07Z",
+      "side": 1,
+      "message": "unneeded word as _any_ trigger would have issues with the steps provided",
+      "range": {
+        "startLine": 8,
+        "startChar": 10,
+        "endLine": 8,
+        "endChar": 17
+      },
+      "revId": "00e2131e3fc34797707f9d5babad95b1417b1a89",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "764440b6_e33140be",
+        "filename": "docs/troubleshooting.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2023-05-25T19:58:07Z",
+      "side": 1,
+      "message": "Additional troubleshooting:\n\nTo manually craft a trigger and see if there is an error:\n\n* login to the gerrit system and switch to the gerrit user\n* execute a trigger hook as if a new event has just happened:\n\nex:\n\n./hooks/patchset-created --change \u003crepo_path_in_gerrit\u003e~\u003cbranch\u003e~\u003cchangsetID_starts_with_I\u003e --kind REWORK --change-url \u003cthe_URL_to_the_change\u003e --change-owner \"Foo \u003cfoo@bar.com\u003e\" --change-owner-username foo --project \u003crepo_path_in_gerrit\u003e --branch \u003cbranch\u003e --topic \u003ctopic_or_\u0027\u0027\u003e --uploader \"Foo \u003cfoo@bar.com\u003e\" --uploader-username foo --commit \u003ccommit_sha\u003e --patchset \u003cpatchset_number\u003e\n\nIf there are problems then you will see the exact error that is being generated.",
+      "revId": "00e2131e3fc34797707f9d5babad95b1417b1a89",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
