@@ -92,6 +92,19 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                 )
 
 
+def filter_path(search_filter: str, workflow: Dict[str, str]) -> bool:
+    """
+    Case insensitive path filter for use in lambda filters.
+
+    Returns True if search_filter matches in workflow["path"]
+    """
+    path = workflow["path"].lower()
+    if path.find(search_filter.lower()) >= 0:
+        return True
+
+    return False
+
+
 def get_change_id(change: str) -> str:
     """Get the Gerrit change_id from an hook event."""
     change_id_regex = r".*~.*~(I.*)"

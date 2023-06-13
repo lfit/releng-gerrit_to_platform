@@ -20,6 +20,7 @@ from gerrit_to_platform.helpers import (  # type: ignore
     choose_dispatch,
     choose_filter_workflows,
     convert_repo_name,
+    filter_path,
     find_and_dispatch,
     get_change_id,
     get_change_number,
@@ -199,6 +200,20 @@ def test_find_and_dispatch(mocker, capfd):
     assert PATCH1_VERIFY not in actual
     assert PATCH1_CHECK_MAIN not in actual
     assert actual == ""
+
+
+def test_filter_path(mocker):
+    """Test filter_path"""
+    # use upper case to validate that filter works case insensitive
+    workflow = {"path": ".GITHUB/WORKFLOWS/GERRIT-VERIFY.yaml"}
+
+    expected = True
+    actual = filter_path("verify", workflow)
+    assert actual == expected
+
+    expected = False
+    actual = filter_path("merge", workflow)
+    assert actual == expected
 
 
 def test_get_change_id(mocker):
