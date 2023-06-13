@@ -29,6 +29,19 @@ def dispatch_workflow(
     )
 
 
+def filter_path(search_filter: str, workflow: Dict[str, str]) -> bool:
+    """
+    Case insensitive path filter for use in lambda filters.
+
+    Returns True if search_filter matches in workflow["path"]
+    """
+    path = workflow["path"].lower()
+    if path.find(search_filter.lower()) >= 0:
+        return True
+
+    return False
+
+
 def filter_workflows(
     owner: str, repository: str, search_filter: str
 ) -> List[Dict[str, str]]:

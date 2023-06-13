@@ -20,6 +20,7 @@ import gerrit_to_platform.github  # type: ignore
 from gerrit_to_platform.config import CONFIG, REPLICATION
 from gerrit_to_platform.github import (  # type: ignore
     dispatch_workflow,
+    filter_path,
     filter_workflows,
     get_workflows,
 )
@@ -123,6 +124,20 @@ def test_get_workflows(mocker):
     mock_GhApi.actions.list_repo_workflows = mock_list_repo_workflows_exception
     actual = get_workflows("example", "repository")
     assert expected == actual
+
+
+def test_filter_path(mocker):
+    """Test filter_path"""
+    # use upper case to validate that filter works case insensitive
+    workflow = {"path": ".GITHUB/WORKFLOWS/GERRIT-VERIFY.yaml"}
+
+    expected = True
+    actual = filter_path("verify", workflow)
+    assert actual == expected
+
+    expected = False
+    actual = filter_path("merge", workflow)
+    assert actual == expected
 
 
 def test_filter_workflows(mocker):
