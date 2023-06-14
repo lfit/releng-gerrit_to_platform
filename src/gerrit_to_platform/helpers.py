@@ -91,6 +91,31 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                     inputs,
                 )
 
+            magic_repo = get_magic_repo(platform)
+            if magic_repo:
+                required_workflows = filter_workflows(
+                    owner, magic_repo, workflow_filter, True
+                )
+
+                inputs["TARGET_REPO"] = f"{owner}/{repo}"
+
+                for workflow in required_workflows:
+                    print(
+                        f"Dispatching required workflow '{workflow['name']}', "
+                        + f"id {workflow['id']} on "
+                        + f"{platform.value}:{owner}/{magic_repo} for change "
+                        + f"{inputs['GERRIT_CHANGE_NUMBER']} patch "
+                        + f"{inputs['GERRIT_PATCHSET_NUMBER']} against "
+                        + f"{platform.value}:{owner}/{repo}"
+                    )
+                    dispatcher(
+                        owner,
+                        magic_repo,
+                        workflow["id"],
+                        f"refs/heads/{inputs['GERRIT_BRANCH']}",
+                        inputs,
+                    )
+
 
 def get_change_id(change: str) -> str:
     """Get the Gerrit change_id from an hook event."""
