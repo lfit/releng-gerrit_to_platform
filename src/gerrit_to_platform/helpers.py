@@ -10,7 +10,7 @@
 """Common helper functions."""
 
 import re
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, Optional, Union
 
 import gerrit_to_platform.github as github
 from gerrit_to_platform.config import (
@@ -111,3 +111,15 @@ def get_change_refspec(change_number: str, patchset: str) -> str:
     else:
         ref_shard = change_number[len(change_number) - 2 :]
     return f"refs/changes/{ref_shard}/{change_number}/{patchset}"
+
+
+def get_magic_repo(platform: Platform) -> Optional[str]:
+    """
+    Get the "magic" repo for a given Platform used to store organization wide
+    required workflows
+    """
+
+    if platform == Platform.GITHUB:
+        return ".github"
+
+    return None

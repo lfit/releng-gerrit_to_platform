@@ -24,6 +24,7 @@ from gerrit_to_platform.helpers import (  # type: ignore
     get_change_id,
     get_change_number,
     get_change_refspec,
+    get_magic_repo,
 )
 
 FIXTURE_DIR = os.path.join(
@@ -227,4 +228,15 @@ def test_get_change_refspec(mocker):
 
     expected = "refs/changes/02/202/1"
     actual = get_change_refspec("202", "1")
+    assert expected == actual
+
+
+def test_get_magic_repo(mocker):
+    """Test get_magic_repo"""
+    expected = ".github"
+    actual = get_magic_repo(Platform.GITHUB)
+    assert expected == actual
+
+    expected = None
+    actual = get_magic_repo(Platform.GITLAB)
     assert expected == actual
