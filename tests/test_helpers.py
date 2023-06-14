@@ -50,6 +50,10 @@ REPLICATION_REMOTES_GITLAB = os.path.join(
     FIXTURE_DIR, "limited_replication_remotes_return_gitlab.json"
 )
 
+REQUIRED_VERIFY_FILTERED_WORKFLOWS = os.path.join(
+    FIXTURE_DIR, "github_workflow_list_required_filter_workflows_return.json"
+)
+
 PATCH1_GERRIT_VERIFY = (
     "Dispatching workflow 'Gerrit Verify', id 20937807 on "
     + "github:example/example-project for change 1 patch 1"
@@ -57,6 +61,11 @@ PATCH1_GERRIT_VERIFY = (
 PATCH1_VERIFY = (
     "Dispatching workflow 'Verify', id 18525370 on "
     + "github:example/example-project for change 1 patch 1"
+)
+PATCH1_REQUIRED_VERIFY = (
+    "Dispatching required workflow 'Required Gerrit Verify', id 20937808 on "
+    + "github:example/.github for change 1 patch 1 against "
+    + "github:example/example-project"
 )
 PATCH1_CHECK_MAIN = (
     "Dispatching workflow 'Check Main', id 17098575 on "
@@ -136,10 +145,14 @@ def test_find_and_dispatch(mocker, capfd):
     )
 
     def mock_filter_workflows(
-        owner: str, repo: str, search_filter: str
+        owner: str, repo: str, search_filter: str, search_required: bool = False
     ) -> List[Dict[str, str]]:
         """Mock of filter_workflows."""
         filter_file = VERIFY_FILTERED_WORKFLOWS
+
+        if search_required:
+            filter_file = REQUIRED_VERIFY_FILTERED_WORKFLOWS
+
         if search_filter == "merge":
             filter_file = MERGE_FILTERED_WORKFLOWS
 
@@ -182,6 +195,7 @@ def test_find_and_dispatch(mocker, capfd):
     actual = capfd.readouterr().out
     assert PATCH1_GERRIT_VERIFY in actual
     assert PATCH1_VERIFY not in actual
+    assert PATCH1_REQUIRED_VERIFY in actual
     assert PATCH1_CHECK_MAIN not in actual
 
     find_and_dispatch("example-project", "merge", inputs)
@@ -198,6 +212,7 @@ def test_find_and_dispatch(mocker, capfd):
     actual = capfd.readouterr().out
     assert PATCH1_GERRIT_VERIFY not in actual
     assert PATCH1_VERIFY not in actual
+    assert PATCH1_REQUIRED_VERIFY not in actual
     assert PATCH1_CHECK_MAIN not in actual
     assert actual == ""
 

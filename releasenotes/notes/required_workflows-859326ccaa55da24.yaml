@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Required workflows are now searched for out of the ORGANIZATION/.github
+    magic repository which matches with 'required' as part of the workflow
+    filename.
+upgrade:
+  - Workflows must now all contain 'gerrit' as part of their filename
+  - Workflwos must now have the search filter word as part of their filename
+  - |
+    Workflow names (friendly name inside the workflow) are no longer searched
+    for triggering purposes
