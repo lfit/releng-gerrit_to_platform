@@ -77,12 +77,87 @@ The ``gerrit_to_platform.ini`` file has the following format::
 The ``content-added`` mapping section is a key value pair for comment triggers
 to the corresponding workflow name or filename
 
-.. _Gerrit: https://www.gerritcodereview.com/
-.. _GitHub: https://github.com
-.. _GitLab: https://gitlab.com
-.. _hooks: https://gerrit.googlesource.com/plugins/hooks/+doc/master/src/main/resources/Documentation/about.md
+GitHub Workflow Configuration
+=============================
 
-.. _pyscaffold-notes:
+There are three hooks that gerrit-to-platform handles:
+
+* patchset-created (search filter: verify)
+* change-merged (search filter: merge)
+* comment-added (comment mapping for keyword to search filter)
+
+Configuration for triggered workflows must meet the following requirements:
+
+* The workflow filename must contain 'gerrit'
+* The workflow filename must contain the search filter
+
+Required workflows must be part of the ORGANIZATION/.github magic repository.
+These workflow filenames must also contain 'required'
+
+ex: ``.github/workflows/gerrit-verify.yaml`` or
+``.github/workflows/gerrit-required-verify.yaml``
+
+Standard workflows (non-required ones) must have the following primary configuration::
+
+    ---
+    name: Gerrit Verify
+
+    # yamllint disable-line rule:truthy
+    on:
+      workflow_dispatch:
+        inputs:
+          GERRIT_BRANCH:
+            description: 'Branch that change is against'
+            required: true
+            type: string
+          GERRIT_CHANGE_ID:
+            description: 'The ID for the change'
+            required: true
+            type: string
+          GERRIT_CHANGE_NUMBER:
+            description: 'The Gerrit number'
+            required: true
+            type: string
+          GERRIT_CHANGE_URL:
+            description: 'URL to the change'
+            required: true
+            type: string
+          GERRIT_EVENT_TYPE:
+            description: 'Gerrit event type'
+            required: true
+            type: string
+          GERRIT_PATCHSET_NUMBER:
+            description: 'The patch number for the change'
+            required: true
+            type: string
+          GERRIT_PATCHSET_REVISION:
+            description: 'The revision sha'
+            required: true
+            type: string
+          GERRIT_PROJECT:
+            description: 'Project in Gerrit'
+            required: true
+            type: string
+          GERRIT_REFSPEC:
+            description: 'Gerrit refspec of change'
+            required: true
+            type: string
+
+
+    concurrency:
+      group: ${{ github.event.inputs.GERRIT_CHANGE_ID || github.run_id }}
+      cancel-in-progress: true
+
+    jobs:
+      <your_job_configurations>
+
+Required workflows must have the following extra input::
+
+    TARGET_REPO:
+      description: 'The target GitHub repository needing the required workflow'
+      required: true
+      type: string
+
 
 Making Changes & Contributing
 =============================
@@ -97,10 +172,14 @@ changes::
 
 Don't forget to tell your contributors to also install and use pre-commit.
 
-.. _pre-commit: https://pre-commit.com/
-
 Note
 ====
 
 PyScaffold 4.4 provided the initial project setup. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
+
+.. _Gerrit: https://www.gerritcodereview.com/
+.. _GitHub: https://github.com
+.. _GitLab: https://gitlab.com
+.. _hooks: https://gerrit.googlesource.com/plugins/hooks/+doc/master/src/main/resources/Documentation/about.md
+.. _pre-commit: https://pre-commit.com/
