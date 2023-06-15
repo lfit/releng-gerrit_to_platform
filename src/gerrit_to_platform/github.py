@@ -20,7 +20,17 @@ from gerrit_to_platform.config import get_setting
 def dispatch_workflow(
     owner: str, repository: str, workflow_id: str, ref: str, inputs: Dict[str, str]
 ) -> Any:
-    """Trigger target workflow."""
+    """
+    Trigger target workflow on GitHub.
+
+    Args:
+        owner (str): GitHub owner (user or organization)
+        repository (str): target repository
+        workflow_id (str): ID of the workflow to trigger
+        ref (str): the commit ref to trigger with
+        inputs (Dict[str, str]): dictionary of key / value pairs to pass as
+            inputs to the workflow
+    """
     github_token = get_setting("github.com", "token")
     api = GhApi(token=github_token)
 
@@ -33,7 +43,13 @@ def filter_path(search_filter: str, workflow: Dict[str, str]) -> bool:
     """
     Case insensitive path filter for use in lambda filters.
 
-    Returns True if search_filter matches in workflow["path"]
+    Args:
+        search_filter (str): string to search workflow file names for
+        workflow (Dict[str, str]): dictionary containing all data related to
+            the workflow being evaluated
+
+    Returns:
+        bool: True if search_filter matches in workflow["path"], False otherwise
     """
     path = workflow["path"].lower()
     if path.find(search_filter.lower()) >= 0:
@@ -56,6 +72,20 @@ def filter_workflows(
 
     If search_required is false (the default), then the list will _exclude_ all
     workflows that contain "required" in the name.
+
+    Args:
+        owner (str): GitHub owner (entity or organization)
+        repository (str): target repository
+        search_filter (str): the substring to search for in workflow filenames
+        search_required (bool): if workflows with "required" in the filename
+            are to be returned. If false, then required workflows will be
+            filtered out, if true only required workflows will be returned.
+
+    Returns:
+        List[Dict[str, str]]: list of dictionaries containing all workflows
+            that meet the search criteria of having "gerrit" in the name, the
+            search_filter substring, and either required or not required
+            according to the search_required argument.
     """
     workflows = get_workflows(owner, repository)
     filtered_workflows: List[Dict[str, str]] = []
@@ -84,7 +114,17 @@ def filter_workflows(
 
 
 def get_workflows(owner: str, repository: str) -> List[Dict[str, str]]:
-    """Get all active workflows for specific repository."""
+    """
+    Get all active workflows for specific repository.
+
+    Args:
+        owner (str): GitHub owner (entity or organization)
+        repository (str): target repository
+
+    Returns:
+        List[Dict[str, str]]: list of dictionaries containing data related to
+            active workflows in the target repository.
+    """
     github_token = get_setting("github.com", "token")
     api = GhApi(token=github_token)
 
