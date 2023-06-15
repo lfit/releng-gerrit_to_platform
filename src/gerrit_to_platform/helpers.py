@@ -21,7 +21,19 @@ from gerrit_to_platform.config import (
 
 
 def choose_dispatch(platform: Platform) -> Union[Callable, None]:
-    """Choose platform job dispatcher."""
+    """
+    Choose platform job dispatcher.
+
+    Args:
+        platform (Platform): the platform that the dispatch is being looked up
+            for
+
+    Returns:
+        Callable: The appropriate callable matching the dispatch_worfklow call
+            signature for the platform
+        None: If no dispatch_workflow is defined for the platform passed in a
+            None is returned
+    """
     if platform.value == "github":
         return github.dispatch_workflow
 
@@ -29,7 +41,20 @@ def choose_dispatch(platform: Platform) -> Union[Callable, None]:
 
 
 def choose_filter_workflows(platform: Platform) -> Union[Callable, None]:
-    """Choose platform workflow filter."""
+    """
+    Choose platform workflow filter.
+
+    Args:
+        platform (Platform): the platform that the filter_workflows is being
+            looked up for
+
+
+    Returns:
+        Callable: The appropriate callable matching the filter_workflows call
+            signature for the platform
+        None: If no filter_workflows is defined for the platform passed in a
+            None is returned
+    """
     if platform.value == "github":
         return github.filter_workflows
 
@@ -42,6 +67,17 @@ def convert_repo_name(
     """
     Convert the repository name based on the remotenamestyle of the target
     platform/owner.
+
+    Args:
+        remotes (ReplicationRemotes): object containing the defined remotes
+            styles
+        platform (Platform): what platform is the conversion happening against
+        remote (str): The specific remote that is being worked on
+        repository (str): The repository name that needs conversion
+
+    Returns:
+        str: The repository name converted to the appropriate flattening for
+            the target remote
     """
 
     remote_styles = {
@@ -57,7 +93,15 @@ def convert_repo_name(
 
 
 def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]):
-    """Find relevant workflows and dispatch them."""
+    """
+    Find relevant workflows and dispatch them.
+
+    Args:
+        project (str): the project repository name
+        workflow_filter (str): the filter for the workflow names
+        inputs (Dict[str, str]): key / value pair dictionary for inputs to be
+            passed to the target workflow dispatch
+    """
     remotes = get_replication_remotes()
 
     for platform in Platform:
@@ -118,19 +162,46 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
 
 
 def get_change_id(change: str) -> str:
-    """Get the Gerrit change_id from an hook event."""
+    """
+    Get the Gerrit change_id from an hook event.
+
+    Args:
+        change (str): the change string passed to event handlers
+
+    Returns:
+        str: The extracted Gerrit change_id from the event hook
+    """
     change_id_regex = r".*~.*~(I.*)"
     return re.findall(change_id_regex, change)[0]
 
 
 def get_change_number(change_url: str) -> str:
-    """Get the Gerrit change_number"""
+    """
+    Get the Gerrit change_number
+
+    Args:
+        change_url (str): the url to the specific change passed by the Gerrit
+            event
+
+    Returns:
+        str: The change number as string extracted from the url
+    """
     change_number_regex = r"^.*/\+/(\d+)$"
     return re.findall(change_number_regex, change_url)[0]
 
 
 def get_change_refspec(change_number: str, patchset: str) -> str:
-    """Return the change refspec from the change number (str) and patch number"""
+    """
+    Return the change refspec from the change number (str) and patch number
+
+    Args:
+        change_number (str): The change number to work with
+        patchset (str): The patchset number to work with
+
+    Returns:
+        str: The git refspec pointing to the hidden ref for the specific change
+            and patchset
+    """
     if int(change_number) < 100:
         ref_shard = change_number.zfill(2)
     else:
@@ -142,6 +213,13 @@ def get_magic_repo(platform: Platform) -> Optional[str]:
     """
     Get the "magic" repo for a given Platform used to store organization wide
     required workflows
+
+    Args:
+        platform (Platform): Platform to lookup magic repo for
+
+    Returns:
+        Optional[str]: The magic repo name or None if not defined for the
+            platform
     """
 
     if platform == Platform.GITHUB:
