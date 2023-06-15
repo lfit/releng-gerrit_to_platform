@@ -52,6 +52,21 @@ def comment_added(
     Multiple scores and old scores may be passed
 
     ex: --Code-Review +1 --Code-Review-oldValue 0
+
+    Args:
+        context (typer.Context): handler for the typer context to allow for
+            extra non-defined parameters (code scores, see above)
+        change (str): change ID
+        change_url (str): change URL
+        change_owner (str): change owner eg: 'Foo <foo@example.com>'
+        change_owner_username (str): change owner username eg: 'foo'
+        project (str): Gerrit project name
+        branch (str): branch change is against
+        topic (str): topic change is part of
+        submitter (str): submitter of change eg: 'Foo <foo@example.com>'
+        submitter_username (str): submitter of change username eg: 'foo'
+        commit (str): SHA1 of commit
+        comment (str): the comment added to the change
     """
     change_id = get_change_id(change)
     change_number = get_change_number(change_url)
