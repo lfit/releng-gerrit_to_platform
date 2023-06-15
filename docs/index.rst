@@ -4,10 +4,16 @@ gerrit-to-platform
 
 This is the documentation of **gerrit-to-platform**.
 
-This documentation describes how to onboard a new project and troubleshooting common issues.
+This documentation describes how to onboard a new project and troubleshooting
+common issues.
 
 Contents
 ========
+
+.. toctree::
+   :maxdepth: 2
+
+   Overview <readme>
 
 Guides
 ------
@@ -24,7 +30,6 @@ Release and Coolaboration
 .. toctree::
    :maxdepth: 2
 
-   Overview <readme>
    Contributions & Help <contributing>
    License <license>
    Authors <authors>
