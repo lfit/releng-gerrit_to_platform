@@ -37,7 +37,23 @@ def patchset_created(
     commit: Annotated[str, typer.Option(help="sha1")],
     patchset: Annotated[str, typer.Option(help="patchset id")],
 ):
-    """Handle patcheset-created hook."""
+    """
+    Handle patcheset-created hook.
+
+    Args:
+        change (str): change ID
+        kind (str): type of change
+        change_url (str): change URL
+        change_owner (str): change owner eg: 'Foo <foo@example.com>'
+        change_owner_username (str): change owner username eg: 'foo'
+        project (str): Gerrit project name
+        branch (str): branch change is against
+        topic (str): topic change is part of
+        uploader (str): uploader of change eg: 'Foo <foo@example.com>'
+        uploader_username (str): uploader of change username eg: 'foo'
+        commit (str): SHA1 of commit
+        patchset (str): patchset number
+    """
 
     change_id = get_change_id(change)
     change_number = get_change_number(change_url)
