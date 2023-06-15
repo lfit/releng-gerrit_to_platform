@@ -44,6 +44,8 @@ class ReplicationRemotes(TypedDict, total=False):
 
 
 class Platform(Enum):
+    """Enumeration of all platforms recognized by the app."""
+
     GITHUB = "github"
     GITLAB = "gitlab"
 
@@ -63,7 +65,16 @@ CONFIG_FILES = {
 
 
 def get_config(config_type: str = DEFAULT_CONFIG) -> ConfigParser:
-    """Get the config object."""
+    """
+    Get the config object.
+
+    Args:
+        config_type (str): Type of configuration file that the parser should use
+
+    Returns:
+        ConfigParser: A loaded ConfigParser object with the requested
+            configuration file
+    """
     config = configparser.ConfigParser()
     conf_file = CONFIG_FILES[config_type]
     with open(conf_file) as config_file:
@@ -72,7 +83,16 @@ def get_config(config_type: str = DEFAULT_CONFIG) -> ConfigParser:
 
 
 def get_mapping(mapping_section: str) -> Union[Dict[str, str], None]:
-    """Return all of the keyword to job mappings"""
+    """
+    Return all of the keyword to job mappings
+
+    Args:
+        mapping_section (str): the section of the config file to load
+
+    Returns:
+        Optional(Dict[str,str]): The key / value mapping object or None if it
+            does not exist
+    """
     config = get_config()
 
     section = f'mapping "{mapping_section}"'
@@ -83,7 +103,13 @@ def get_mapping(mapping_section: str) -> Union[Dict[str, str], None]:
 
 
 def get_replication_remotes() -> ReplicationRemotes:
-    """Get the replication remotes available."""
+    """
+    Get the replication remotes available.
+
+    Returns:
+        ReplicationRemotes: All the replication remotes defined the Gerrit
+            configuration file
+    """
     remotes_config = get_config(REPLICATION)
     remotes: ReplicationRemotes = {}
 
@@ -140,13 +166,32 @@ def get_replication_remotes() -> ReplicationRemotes:
 
 
 def has_section(section: str) -> bool:
-    """Indicate if section exists in config file."""
+    """
+    Indicate if section exists in config file.
+
+    Args:
+        section (str): config section to lookup
+
+    Returns:
+        bool: True if the section exists in configuration, False otherwise
+    """
     config = get_config()
     return config.has_section(section)
 
 
 def get_setting(section: str, option: Optional[str] = None) -> Union[list, str]:
-    """Get all configuration options from a section, or specific option from a section."""
+    """
+    Get all configuration options from a section, or specific option from a
+    section.
+
+    Args:
+        section (str): config section to use
+        option (Optional[str]): a suboption to get from the section
+
+    Returns:
+        list: all of the configuration for a section
+        str: the single sub-option of a section
+    """
     config = get_config()
 
     if option:
