@@ -156,7 +156,7 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                         owner,
                         magic_repo,
                         workflow["id"],
-                        f"refs/heads/{inputs['GERRIT_BRANCH']}",
+                        "refs/heads/main",
                         inputs,
                     )
 

@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Magic repos may not have the same branches that the source repo does make
+    the assumption / requirement that the magic repo uses refs/heads/main for
+    everything
