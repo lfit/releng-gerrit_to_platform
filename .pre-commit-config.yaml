@@ -31,7 +31,7 @@ repos:
       - id: gitlint
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: 8713140e99914c0cb6e07364daedfb140847c3c5  # frozen: v1.33.0
+    rev: dd99a1c965b56027e9773442f41d3c58cc53c690  # frozen: v1.34.0
     hooks:
       - id: yamllint
         types: [yaml]
@@ -60,7 +60,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: ec91a2be3c44d88e1a3960a4937ad6ed3b63464e  # frozen: 23.12.1
+    rev: e026c93888f91a47a9c9f4e029f3eb07d96375e6  # frozen: 24.1.1
     hooks:
       - id: black
         language_version: python3
