@@ -127,13 +127,16 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                     + f"{inputs['GERRIT_CHANGE_NUMBER']} patch "
                     + inputs["GERRIT_PATCHSET_NUMBER"]
                 )
-                dispatcher(
-                    owner,
-                    repo,
-                    workflow["id"],
-                    f"refs/heads/{inputs['GERRIT_BRANCH']}",
-                    inputs,
-                )
+                try:
+                    dispatcher(
+                        owner,
+                        repo,
+                        workflow["id"],
+                        f"refs/heads/{inputs['GERRIT_BRANCH']}",
+                        inputs,
+                    )
+                except Exception as e:
+                    print(f"Failed to dispatch workflow: {e}")
 
             magic_repo = get_magic_repo(platform)
             if magic_repo:
@@ -152,13 +155,16 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                         + f"{inputs['GERRIT_PATCHSET_NUMBER']} against "
                         + f"{platform.value}:{owner}/{repo}"
                     )
-                    dispatcher(
-                        owner,
-                        magic_repo,
-                        workflow["id"],
-                        "refs/heads/main",
-                        inputs,
-                    )
+                    try:
+                        dispatcher(
+                            owner,
+                            magic_repo,
+                            workflow["id"],
+                            "refs/heads/main",
+                            inputs,
+                        )
+                    except Exception as e:
+                        print(f"Failed to dispatch workflow: {e}")
 
 
 def get_change_id(change: str) -> str:
