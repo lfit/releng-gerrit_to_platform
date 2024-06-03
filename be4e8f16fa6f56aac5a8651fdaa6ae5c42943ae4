@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a45078c_a58028cb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8
+      },
+      "writtenOn": "2024-06-03T13:43:33Z",
+      "side": 1,
+      "message": "Typo: Switch",
+      "revId": "be4e8f16fa6f56aac5a8651fdaa6ae5c42943ae4",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
