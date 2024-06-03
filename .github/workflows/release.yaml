@@ -2,23 +2,75 @@
 name: PyPI release
 
 # yamllint disable-line rule:truthy
-on: push
+on:
+  push:
+    # Only invoked on release tag pushes
+    tags:
+      - v*.*.*
+
+env:
+  python-version: 3.8
 
 jobs:
-  publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+  build:
     runs-on: ubuntu-latest
     permissions:
+      # IMPORTANT: mandatory for Sigstore
       id-token: write
     steps:
+      ### BUILDING ###
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29  # v4.1.6
+
       - name: Configure Python
-        uses: actions/setup-python@v4
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d  # v5.1.0
         with:
-          python-version: '3.8'
+          python-version: ${{ env.python-version }}
+
       - name: Build package distribution files
         run: >-
           pipx run tox -e clean,build
+
+      ### SIGNING ###
+
+      - name: Sign pacakges with Sigstore
+        # yamllint disable-line rule:line-length
+        uses: sigstore/gh-action-sigstore-python@61f6a500bbfdd9a2a339cf033e5421951fbc1cd2  # v2.1.1
+        with:
+          inputs: >-
+            ./dist/*.tar.gz
+            ./dist/*.whl
+
+      - name: Store the distribution packages
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808  # v4.3.3
+        with:
+          name: ${{ github.ref_name }}
+          path: dist/
+
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: mandatory for Sigstore and for PyPI publishing
+      id-token: write
+    steps:
+      ### BUILDING ###
+      - name: Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29  # v4.1.6
+
+      - name: Configure Python
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d  # v5.1.0
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Build package distribution files
+        run: >-
+          pipx run tox -e clean,build
+
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        # yamllint disable-line rule:line-length
+        uses: pypa/gh-action-pypi-publish@81e9d935c883d0b210363ab89cf05f3894778450  # v1.8.14
