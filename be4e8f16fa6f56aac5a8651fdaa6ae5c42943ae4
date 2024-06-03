@@ -16,6 +16,24 @@
       "message": "Typo: Switch",
       "revId": "be4e8f16fa6f56aac5a8651fdaa6ae5c42943ae4",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f0eede8_51377683",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2024-06-03T17:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a45078c_a58028cb",
+      "revId": "be4e8f16fa6f56aac5a8651fdaa6ae5c42943ae4",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     }
   ]
 }
