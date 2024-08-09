@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a052ab10_af9d4610",
+        "filename": "README.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 192
+      },
+      "writtenOn": "2024-08-09T18:36:45Z",
+      "side": 1,
+      "message": "These two sentences were rewritten into the active voice, as WriteGood requires.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 33
+      },
+      "revId": "c5ee539ee4983a4db7d76eb5d15ad8971c71b428",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
