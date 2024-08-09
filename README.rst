@@ -44,7 +44,7 @@ Gerrit hooks to allow using GitHub and GitLab as CI platforms.
 To use, install the Gerrit hooks_ plugin and then symlink the hooks from the
 virtualenv that has the package installed.
 
-A Python 3.8 or greater environment
+You need to have a Python 3.8 or greater environment.
 
 Repositories that use the CI platform must have full mirroring replication
 configured. In specific ``refs/*`` must be in the replication set and not
@@ -53,7 +53,7 @@ configured. In specific ``refs/*`` must be in the replication set and not
 To activate a given hook, symlink the installed hook in the gerrit hooks
 directory.
 
-Two configuration files needed. These files are:
+You need two configuration files:
 
 - ``~gerrituser/.config/gerrit_to_platform/gerrit_to_platform.ini``
 - ``~gerrituser/.config/gerrit_to_platform/replication.config``
@@ -91,13 +91,21 @@ Configuration for triggered workflows must meet the following requirements:
 * The workflow filename must contain 'gerrit'
 * The workflow filename must contain the search filter
 
-Required workflows must be part of the ORGANIZATION/.github magic repository.
-These workflow filenames must also contain 'required'
+Required workflows (those that should run on all projects) must be part of the
+ORGANIZATION/.github magic repository.
+These workflow filenames must also contain 'required'.
 
-ex: ``.github/workflows/gerrit-verify.yaml`` or
-``.github/workflows/gerrit-required-verify.yaml``
+ex: ``.github/workflows/gerrit-required-verify.yaml``
 
-Standard workflows (non-required ones) must have the following primary configuration::
+You can put standard workflows (non-required ones) into a project's repository,
+in the .github directory. These should have filenames that include 'gerrit' and
+the search filter, as discussed above, but do not need anything beyond. They
+should never include 'required' in their filename.
+
+ex: ``.github/workflows/gerrit-merge.yaml`` or
+``.github/workflows/gerrit-sonar-novote-verify.yaml``
+
+All workflows must have the following primary configuration::
 
     ---
     name: Gerrit Verify
