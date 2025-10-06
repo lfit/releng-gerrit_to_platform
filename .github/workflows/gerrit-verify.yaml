@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: Clear votes
         # yamllint disable-line rule:line-length
-        uses: lfit/gerrit-review-action@b2e3ea69fb74183ac3d32360d06b2b085c2efee6  # v0.5
+        uses: lfit/gerrit-review-action@9627b9a144f2a2cad70707ddfae87c87dce60729  # v0.8
         with:
           host: ${{ vars.LFIT_GERRIT_SERVER }}
           username: ${{ vars.LFIT_GERRIT_SSH_USER }}
@@ -72,7 +72,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@95c493e8fd60233fac7b9c99ebe5f60e9a8c555b  # @v0.7
+        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
@@ -92,12 +92,13 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@95c493e8fd60233fac7b9c99ebe5f60e9a8c555b  # v0.7
+        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
       - name: Configure Python
-        uses: actions/setup-python@v4
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: "3.11"
       - name: Run static analysis and format checkers
@@ -111,10 +112,12 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@95c493e8fd60233fac7b9c99ebe5f60e9a8c555b  # v0.7
+        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
-      - uses: actions/setup-python@v4
+      - name: Configure Python
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: '3.8'
       - name: Build package distribution files
@@ -126,7 +129,8 @@ jobs:
       - name: Store the distribution files for use in other stages
         # `tests` and `publish` will use the same pre-built distributions,
         # so we make sure to release the exact same package that was tested
-        uses: actions/upload-artifact@v3
+        # yamllint disable-line rule:line-length
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: python-distribution-files
           path: dist/
@@ -144,16 +148,19 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@95c493e8fd60233fac7b9c99ebe5f60e9a8c555b  # v0.7
+        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
-      - uses: actions/setup-python@v4
+      - name: Configure Python
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         id: setup-python
         with:
           python-version: ${{ matrix.python }}
       - name: Retrieve pre-built distribution files
-        uses: actions/download-artifact@v3
+        # yamllint disable-line rule:line-length
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with: {name: python-distribution-files, path: dist/}
       - name: Run tests
         run: >-
@@ -164,7 +171,8 @@ jobs:
       - name: Generate coverage report
         run: pipx run coverage lcov -o coverage.lcov
       - name: Upload partial coverage report
-        uses: coverallsapp/github-action@master
+        # yamllint disable-line rule:line-length
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b  # v2.3.6
         with:
           path-to-lcov: coverage.lcov
           github-token: ${{ secrets.github_token }}
@@ -181,27 +189,31 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@95c493e8fd60233fac7b9c99ebe5f60e9a8c555b  # v0.7
+        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
       - name: Configure Python
-        uses: actions/setup-python@v4
+        # yamllint disable-line rule:line-length
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: "3.11"
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        # yamllint disable-line rule:line-length
+        uses: github/codeql-action/init@3599b3baa15b485a2e49ef411a7a4bb2452e7f93  # v3.30.5
         with:
           languages: python
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        # yamllint disable-line rule:line-length
+        uses: github/codeql-action/analyze@3599b3baa15b485a2e49ef411a7a4bb2452e7f93  # v3.30.5
 
   finalize:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Finalize coverage report
-        uses: coverallsapp/github-action@master
+        # yamllint disable-line rule:line-length
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b  # v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
@@ -216,7 +228,7 @@ jobs:
         uses: im-open/workflow-conclusion@e4f7c4980600fbe0818173e30931d3550801b992  # v2.2.3
       - name: Set vote
         # yamllint disable-line rule:line-length
-        uses: lfit/gerrit-review-action@b2e3ea69fb74183ac3d32360d06b2b085c2efee6  # v0.5
+        uses: lfit/gerrit-review-action@9627b9a144f2a2cad70707ddfae87c87dce60729  # v0.8
         with:
           host: ${{ vars.LFIT_GERRIT_SERVER }}
           username: ${{ vars.LFIT_GERRIT_SSH_USER }}
