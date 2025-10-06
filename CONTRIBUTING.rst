@@ -95,7 +95,7 @@ Clone the repository
 #. Create an user account on |the repository service| if you do not already have one.
 #. Clone this copy to your local disk::
 
-    git clone ssh://YourLogin@gerrit.linuxfoundation.org:29413/releng/gerrit_to_platform.git
+    git clone ssh://YourLogin@gerrit.linuxfoundation.org:29418/releng/gerrit_to_platform.git
     cd gerrit_to_platform
     git review -s
 
