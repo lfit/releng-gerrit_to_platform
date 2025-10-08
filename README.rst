@@ -44,7 +44,7 @@ Gerrit hooks to allow using GitHub and GitLab as CI platforms.
 To use, install the Gerrit hooks_ plugin and then symlink the hooks from the
 virtualenv that has the package installed.
 
-You need to have a Python 3.8 or greater environment.
+You need to have a Python 3.11 or greater environment.
 
 Repositories that use the CI platform must have full mirroring replication
 configured. In specific ``refs/*`` must be in the replication set and not
