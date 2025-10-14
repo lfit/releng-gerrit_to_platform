@@ -1,0 +1,8 @@
+Verified+1: LFIT Required GHA <releng+lfit-required-gha@linuxfoundation.org>
+Verified+1: LFIT GitHub-Gerrit <releng+github-lfit-gerrit@linuxfoundation.org>
+Code-Review+2: Matthew Watkins <mwatkins@linuxfoundation.org>
+Submitted-by: Anil Belur <abelur@linuxfoundation.org>
+Submitted-at: Tue, 14 Oct 2025 07:35:00 +0000
+Reviewed-on: https://gerrit.linuxfoundation.org/infra/c/releng/gerrit_to_platform/+/73682
+Project: releng/gerrit_to_platform
+Branch: refs/heads/main
