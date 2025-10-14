@@ -116,3 +116,29 @@ def test_get_setting(mocker):
         get_setting("foobar")
     with pytest.raises(Exception, match="No option 'baz' in section: 'github.com'"):
         get_setting("github.com", "baz")
+
+
+def test_get_project_workflow_filter(mocker):
+    """Test getting project-specific workflow filter."""
+    from gerrit_to_platform.config import get_project_workflow_filter
+
+    testconfig = os.path.join(FIXTURE_DIR, "testconfig.ini")
+    mocker.patch("gerrit_to_platform.config.CONFIG_FILES", {"config": testconfig})
+
+    # Test project with filter configured
+    actual = get_project_workflow_filter("releng/builder", "verify")
+    assert actual == "packer"
+
+    actual = get_project_workflow_filter("releng/builder", "merge")
+    assert actual == "packer"
+
+    actual = get_project_workflow_filter("ci-management", "verify")
+    assert actual == "jjb"
+
+    # Test project without filter configured
+    actual = get_project_workflow_filter("some/other-project", "verify")
+    assert actual is None
+
+    # Test project with section but missing filter
+    actual = get_project_workflow_filter("releng/builder", "nonexistent")
+    assert actual is None
