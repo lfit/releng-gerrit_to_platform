@@ -198,3 +198,55 @@ def get_setting(section: str, option: Optional[str] = None) -> Union[list, str]:
         return config.get(section, option)
 
     return config.options(section)
+
+
+def get_boolean_setting(section: str, option: str, fallback: bool = False) -> bool:
+    """
+    Get a boolean configuration option from a section.
+
+    Args:
+        section (str): config section to use
+        option (str): the option to get from the section
+        fallback (bool): default value if option doesn't exist
+
+    Returns:
+        bool: the boolean value of the option, or fallback if not found
+    """
+    config = get_config()
+
+    try:
+        return config.getboolean(section, option)
+    except (NoOptionError, configparser.NoSectionError):
+        return fallback
+
+
+def get_project_workflow_filter(project: str, event_type: str) -> Optional[str]:
+    """
+    Get workflow filter for a specific project and event type.
+
+    Checks configuration for project-specific workflow filters that narrow
+    down which workflow to trigger for a given event type.
+
+    Args:
+        project (str): Gerrit project name (e.g., "releng/builder")
+        event_type (str): Event type ("verify" or "merge")
+
+    Returns:
+        str: workflow filter (e.g., "packer") if configured
+        None: no filter configured for this project/event combination
+
+    Example:
+        >>> get_project_workflow_filter("releng/builder", "verify")
+        'packer'  # From config: [project "releng/builder"] verify_filter = packer
+    """
+    try:
+        config = get_config()
+        section = f'project "{project}"'
+
+        if not config.has_section(section):
+            return None
+
+        option = f"{event_type}_filter"
+        return config.get(section, option)
+    except (configparser.NoOptionError, configparser.NoSectionError):
+        return None

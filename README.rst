@@ -91,6 +91,10 @@ Configuration for triggered workflows must meet the following requirements:
 * The workflow filename must contain 'gerrit'
 * The workflow filename must contain the search filter
 
+**Note:** By default, gerrit-to-platform triggers **ALL** workflows that match
+the pattern. To trigger only one specific workflow, see the `Exact Workflow
+Matching`_ section below.
+
 Required workflows (those that should run on all projects) must be part of the
 ORGANIZATION/.github magic repository.
 These workflow filenames must also contain 'required'.
@@ -167,6 +171,31 @@ Required workflows must have the following extra input::
       type: string
 
 
+Exact Workflow Matching
+========================
+
+By default, gerrit-to-platform triggers **ALL** workflows that match the event
+filter pattern. For example, if you have:
+
+* ``.github/workflows/gerrit-packer-verify.yaml``
+* ``.github/workflows/gerrit-shellcheck-verify.yaml``
+* ``.github/workflows/gerrit-ci-verify.yaml``
+
+All three will be triggered for patchset-created events.
+
+To trigger only ONE specific workflow, enable exact matching in your
+configuration file (``~/.config/gerrit_to_platform/gerrit_to_platform.ini``)::
+
+    [workflow]
+    exact_match = true
+
+With exact matching enabled, only workflows named exactly ``gerrit-verify.yaml``
+or ``gerrit-merge.yaml`` will be triggered. This prevents multiple workflows
+from being triggered simultaneously.
+
+For detailed information and migration guide, see `EXACT_MATCH_WORKFLOWS.md`_.
+
+
 Making Changes & Contributing
 =============================
 
@@ -191,3 +220,5 @@ information on PyScaffold see https://pyscaffold.org/.
 .. _GitLab: https://gitlab.com
 .. _hooks: https://gerrit.googlesource.com/plugins/hooks/+doc/master/src/main/resources/Documentation/about.md
 .. _pre-commit: https://pre-commit.com/
+.. _EXACT_MATCH_WORKFLOWS.md: EXACT_MATCH_WORKFLOWS.md
+.. _Exact Workflow Matching: #exact-workflow-matching

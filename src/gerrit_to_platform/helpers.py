@@ -16,6 +16,8 @@ import gerrit_to_platform.github as github
 from gerrit_to_platform.config import (
     Platform,
     ReplicationRemotes,
+    get_boolean_setting,
+    get_project_workflow_filter,
     get_replication_remotes,
 )
 
@@ -104,6 +106,12 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
     """
     remotes = get_replication_remotes()
 
+    # Check if exact workflow matching is enabled
+    exact_match = get_boolean_setting("workflow", "exact_match", fallback=False)
+    
+    # Get project-specific workflow filter (if configured)
+    job_filter = get_project_workflow_filter(project, workflow_filter)
+
     for platform in Platform:
         if platform.value not in remotes:
             continue
@@ -117,7 +125,9 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
         for remote in remotes[platform.value]:
             owner = remotes[platform.value][remote]["owner"]
             repo = convert_repo_name(remotes, platform, remote, project)
-            workflows = filter_workflows(owner, repo, workflow_filter)
+            workflows = filter_workflows(
+                owner, repo, workflow_filter, False, exact_match, job_filter
+            )
 
             for workflow in workflows:
                 print(
@@ -141,7 +151,7 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
             magic_repo = get_magic_repo(platform)
             if magic_repo:
                 required_workflows = filter_workflows(
-                    owner, magic_repo, workflow_filter, True
+                    owner, magic_repo, workflow_filter, True, exact_match, job_filter
                 )
 
                 inputs["TARGET_REPO"] = f"{owner}/{repo}"

@@ -9,7 +9,7 @@
 ##############################################################################
 """Github connection module."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastcore.net import HTTP404NotFoundError  # type: ignore
 from ghapi.all import GhApi  # type: ignore
@@ -59,7 +59,12 @@ def filter_path(search_filter: str, workflow: Dict[str, str]) -> bool:
 
 
 def filter_workflows(
-    owner: str, repository: str, search_filter: str, search_required: bool = False
+    owner: str,
+    repository: str,
+    search_filter: str,
+    search_required: bool = False,
+    exact_match: bool = False,
+    job_filter: Optional[str] = None,
 ) -> List[Dict[str, str]]:
     """
     Return a case insensitive filtered list of workflows.
@@ -73,6 +78,14 @@ def filter_workflows(
     If search_required is false (the default), then the list will _exclude_ all
     workflows that contain "required" in the name.
 
+    If exact_match is true, the workflow path must match exactly "gerrit-<search_filter>.yaml"
+    or "gerrit-<search_filter>.yml", preventing multiple workflows from being triggered.
+
+    If job_filter is provided, adds an additional filter level to match only workflows
+    containing the job_filter string. This allows triggering specific workflows like
+    "gerrit-packer-verify.yaml" when job_filter="packer". If job_filter is None,
+    all matching workflows are returned (backward compatible).
+
     Args:
         owner (str): GitHub owner (entity or organization)
         repository (str): target repository
@@ -80,35 +93,72 @@ def filter_workflows(
         search_required (bool): if workflows with "required" in the filename
             are to be returned. If false, then required workflows will be
             filtered out, if true only required workflows will be returned.
+        exact_match (bool): if True, only match workflows with exact pattern
+            "gerrit-<search_filter>.yaml" or "gerrit-<search_filter>.yml".
+            This prevents multiple workflows from being triggered.
+        job_filter (Optional[str]): additional filter string to narrow workflow selection.
+            If provided, only workflows containing this string are returned.
+            If None, all workflows matching other criteria are returned.
 
     Returns:
         List[Dict[str, str]]: list of dictionaries containing all workflows
             that meet the search criteria of having "gerrit" in the name, the
-            search_filter substring, and either required or not required
-            according to the search_required argument.
+            search_filter substring, optional job_filter, and either required
+            or not required according to the search_required argument.
     """
     workflows = get_workflows(owner, repository)
     filtered_workflows: List[Dict[str, str]] = []
 
-    filtered_workflows = list(
-        filter(lambda workflow: filter_path(search_filter, workflow), workflows)
-    )
-    filtered_workflows = list(
-        filter(lambda workflow: filter_path("gerrit", workflow), filtered_workflows)
-    )
-    if search_required:
-        filtered_workflows = list(
-            filter(
-                lambda workflow: filter_path("required", workflow), filtered_workflows
+    if exact_match:
+        # Exact match mode: only match "gerrit-<search_filter>.yaml" or ".yml"
+        exact_patterns = [
+            f"gerrit-{search_filter}.yaml",
+            f"gerrit-{search_filter}.yml",
+        ]
+        if search_required:
+            exact_patterns.extend(
+                [
+                    f"gerrit-required-{search_filter}.yaml",
+                    f"gerrit-required-{search_filter}.yml",
+                    f"gerrit-{search_filter}-required.yaml",
+                    f"gerrit-{search_filter}-required.yml",
+                ]
             )
-        )
+
+        for workflow in workflows:
+            path_lower = workflow["path"].lower()
+            filename = path_lower.split("/")[-1]  # Get just the filename
+            if filename in exact_patterns:
+                filtered_workflows.append(workflow)
     else:
+        # Original substring matching behavior
         filtered_workflows = list(
-            filter(
-                lambda workflow: not filter_path("required", workflow),
-                filtered_workflows,
-            )
+            filter(lambda workflow: filter_path(search_filter, workflow), workflows)
         )
+        filtered_workflows = list(
+            filter(lambda workflow: filter_path("gerrit", workflow), filtered_workflows)
+        )
+        
+        # Apply job_filter if provided (3rd level filter)
+        if job_filter:
+            filtered_workflows = list(
+                filter(lambda workflow: filter_path(job_filter, workflow), filtered_workflows)
+            )
+        
+        if search_required:
+            filtered_workflows = list(
+                filter(
+                    lambda workflow: filter_path("required", workflow),
+                    filtered_workflows,
+                )
+            )
+        else:
+            filtered_workflows = list(
+                filter(
+                    lambda workflow: not filter_path("required", workflow),
+                    filtered_workflows,
+                )
+            )
 
     return filtered_workflows
 

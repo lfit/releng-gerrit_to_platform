@@ -144,8 +144,25 @@ def test_find_and_dispatch(mocker, capfd):
         return_value=replication_remotes,
     )
 
+    # Mock get_boolean_setting to avoid config file dependency
+    mocker.patch(
+        "gerrit_to_platform.helpers.get_boolean_setting",
+        return_value=False,
+    )
+    
+    # Mock get_project_workflow_filter to return None (no project-specific filter)
+    mocker.patch(
+        "gerrit_to_platform.helpers.get_project_workflow_filter",
+        return_value=None,
+    )
+
     def mock_filter_workflows(
-        owner: str, repo: str, search_filter: str, search_required: bool = False
+        owner: str,
+        repo: str,
+        search_filter: str,
+        search_required: bool = False,
+        exact_match: bool = False,
+        job_filter: str = None,
     ) -> List[Dict[str, str]]:
         """Mock of filter_workflows."""
         filter_file = VERIFY_FILTERED_WORKFLOWS
