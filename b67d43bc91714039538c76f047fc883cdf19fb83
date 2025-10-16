@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e3b6a11_d538d548",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2025-10-16T15:18:19Z",
+      "side": 1,
+      "message": "The EXACT_MATCHING.md file is missing.\n\nFurther reading through this I fail to see how this is fully useful. _How_ does this extra filtering actual help when we\u0027re only acting on events? I don\u0027t see anything that does extra evaluation to determine a sub-filter that needs to happen.\n\nWith the definitions that I\u0027m seeing in the code right now, if you enable this exact matching subsystem then the standard verify and merge jobs will get skipped and only the extra filter version will run. How do you handle having to have multiple different types of workflows being run?\n\nPerhaps I\u0027m just not understanding the code. Yes, the current method launches all workflow files that match the event type, that\u0027s by design. You can do further filtering in the workflows themselves if you want to make sure they don\u0027t use more resources than needed on particular workflow by having them end early if there are no changes that impact the rest of the workflow.",
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7807b6cd_6d1bc4e9",
+        "filename": "CHANGELOG.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2025-10-16T15:18:19Z",
+      "side": 1,
+      "message": "This file is missing.",
+      "range": {
+        "startLine": 11,
+        "startChar": 39,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16329a3d_dfaa02b3",
+        "filename": "README.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2025-10-16T15:18:19Z",
+      "side": 1,
+      "message": "This file is missing.",
+      "range": {
+        "startLine": 196,
+        "startChar": 51,
+        "endLine": 196,
+        "endChar": 75
+      },
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e76dcac3_72ab4980",
+        "filename": "README.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2025-10-16T15:18:19Z",
+      "side": 1,
+      "message": "This file is missing.",
+      "range": {
+        "startLine": 223,
+        "startChar": 30,
+        "endLine": 223,
+        "endChar": 54
+      },
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
