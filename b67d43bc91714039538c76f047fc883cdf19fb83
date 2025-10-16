@@ -18,6 +18,41 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f528b8d_e1dca1f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2025-10-16T23:20:12Z",
+      "side": 1,
+      "message": "Some of the repos in ODL is expected to have multiple verify workflows, that needs to be triggered specifically without triggering entire subset of workflow files.\nThe extra filtering solves an existing problem or limitation with the g2p implementation: when multiple workflow files exist\n(e.g., gerrit-mvn-verify.yaml, gerrit-mvn-jdk21-verify.yaml, gerrit-mvn-mri-verify.yaml, gerrit-jjb-verify.yaml, gerrit-shellcheck-verify.yaml), The current system triggers ALL of them on every patchset-created event because they all match \"gerrit\" + \"verify\". This potentially wastes CI resources and creates noise.",
+      "parentUuid": "9e3b6a11_d538d548",
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85abe4f9_ec485696",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2025-10-16T23:20:12Z",
+      "side": 1,
+      "message": "Adding a -2 until its approved by Andrew!",
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7807b6cd_6d1bc4e9",
@@ -31,6 +66,30 @@
       "writtenOn": "2025-10-16T15:18:19Z",
       "side": 1,
       "message": "This file is missing.",
+      "range": {
+        "startLine": 11,
+        "startChar": 39,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb0c62f9_ce2d9025",
+        "filename": "CHANGELOG.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2025-10-16T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7807b6cd_6d1bc4e9",
       "range": {
         "startLine": 11,
         "startChar": 39,
@@ -64,6 +123,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa90dd1c_c07cc719",
+        "filename": "README.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2025-10-16T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16329a3d_dfaa02b3",
+      "range": {
+        "startLine": 196,
+        "startChar": 51,
+        "endLine": 196,
+        "endChar": 75
+      },
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e76dcac3_72ab4980",
@@ -77,6 +160,30 @@
       "writtenOn": "2025-10-16T15:18:19Z",
       "side": 1,
       "message": "This file is missing.",
+      "range": {
+        "startLine": 223,
+        "startChar": 30,
+        "endLine": 223,
+        "endChar": 54
+      },
+      "revId": "b67d43bc91714039538c76f047fc883cdf19fb83",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "445206fc_5fee76af",
+        "filename": "README.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2025-10-16T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e76dcac3_72ab4980",
       "range": {
         "startLine": 223,
         "startChar": 30,
