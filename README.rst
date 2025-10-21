@@ -167,6 +167,63 @@ Required workflows must have the following extra input::
       type: string
 
 
+ChatOps Workflow
+================
+
+Trigger GitHub Actions workflows directly from Gerrit by adding comments to your
+changes. This eliminates the need for manual workflow triggers and enables
+automated testing on-demand.
+
+To trigger a workflow, add a comment to any Gerrit change using the pattern::
+
+    gha-<action> <workflow-name> <parameters>
+
+For example::
+
+    gha-run csit-2n-perftest nic=intel-e810cq drv=avf
+
+Common examples include::
+
+    gha-run csit-2n-perftest nic=intel-e810cq drv=avf
+    gha-run csit-3n-perftest mrrANDnic_intel-e810cqANDdrv_avfAND4c
+    gha-run csit-2n-mrr-weekly
+    gha-run csit-3n-mrr-daily nic=intel-x710
+    gha-run terraform-cdash-deploy env=production
+    gha-run terraform-infra-update region=us-west
+    gha-run vpp-build type=release arch=x86_64
+    gha-run vpp-verify compiler=gcc
+    gha-run hicn-verify arch=amd64
+    gha-run cicn-build type=debug
+    gha-run hc2vpp-integration-test
+    gha-run hc2vpp-verify
+
+Parameters can be specified in two formats:
+
+1. Key=Value format (recommended)::
+
+    gha-run csit-2n-perftest nic=intel-e810cq drv=avf framesize=64
+
+2. AND-separated format (legacy support)::
+
+    gha-run csit-2n-perftest mrrANDnic_intel-e810cqANDdrv_avfAND4c
+
+**Cooldown Period**: To prevent workflow spam, there is a 5-minute cooldown
+between commands for the same workflow on the same change. If you trigger a
+workflow and need to run it again, wait 5 minutes before commenting.
+
+**Troubleshooting**: If your command doesn't trigger a workflow:
+
+* Verify the command starts with ``gha-`` followed by the action and workflow name
+* Check that the workflow name matches a supported pattern for your project
+* Wait 5 minutes if you recently triggered the same workflow on this change
+* Review GitHub Actions logs for error messages
+
+**Workflow Configuration**: Workflows that respond to ChatOps commands must be
+named ``comment-handler`` and include a ``GERRIT_COMMENT`` input that receives
+the full command line. The workflow then parses the command to determine which
+handler to execute. See ``gerrit-comment-handler.yaml`` for a complete example.
+
+
 Making Changes & Contributing
 =============================
 
