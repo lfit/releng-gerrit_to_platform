@@ -92,7 +92,9 @@ def convert_repo_name(
     return converted_repository
 
 
-def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]):
+def find_and_dispatch(
+    project: str, workflow_filter: str, inputs: Dict[str, str]
+) -> int:
     """
     Find relevant workflows and dispatch them.
 
@@ -101,8 +103,12 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
         workflow_filter (str): the filter for the workflow names
         inputs (Dict[str, str]): key / value pair dictionary for inputs to be
             passed to the target workflow dispatch
+
+    Returns:
+        int: The number of workflows dispatched
     """
     remotes = get_replication_remotes()
+    dispatched_count = 0
 
     for platform in Platform:
         if platform.value not in remotes:
@@ -135,6 +141,7 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                         f"refs/heads/{inputs['GERRIT_BRANCH']}",
                         inputs,
                     )
+                    dispatched_count += 1
                 except Exception as e:
                     print(f"Failed to dispatch workflow: {e}")
 
@@ -163,8 +170,11 @@ def find_and_dispatch(project: str, workflow_filter: str, inputs: Dict[str, str]
                             "refs/heads/main",
                             inputs,
                         )
+                        dispatched_count += 1
                     except Exception as e:
                         print(f"Failed to dispatch workflow: {e}")
+
+    return dispatched_count
 
 
 def get_change_id(change: str) -> str:
