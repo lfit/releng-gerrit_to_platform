@@ -24,6 +24,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36cda6f5_be0b3d47",
+        "filename": "tests/test_comment_added_chatops.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 31
+      },
+      "writtenOn": "2025-10-22T14:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12d37235_e87ed1ed",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 322,
+        "endChar": 8
+      },
+      "revId": "db1b3f4ab7d03cd0bc37bc137f974ff67d020525",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00bcc45d_01bcaac2",
@@ -37,6 +61,30 @@
       "writtenOn": "2025-10-21T22:54:22Z",
       "side": 1,
       "message": "Dangling white space",
+      "range": {
+        "startLine": 334,
+        "startChar": 0,
+        "endLine": 334,
+        "endChar": 8
+      },
+      "revId": "db1b3f4ab7d03cd0bc37bc137f974ff67d020525",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06589b89_9349cd29",
+        "filename": "tests/test_comment_added_chatops.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 31
+      },
+      "writtenOn": "2025-10-22T14:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00bcc45d_01bcaac2",
       "range": {
         "startLine": 334,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3b86145_6bd25929",
+        "filename": "tests/test_comment_added_chatops.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 31
+      },
+      "writtenOn": "2025-10-22T14:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4af3eb9_8984629f",
+      "range": {
+        "startLine": 349,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 8
+      },
+      "revId": "db1b3f4ab7d03cd0bc37bc137f974ff67d020525",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff016528_2317aec0",
@@ -83,6 +155,30 @@
       "writtenOn": "2025-10-21T22:54:22Z",
       "side": 1,
       "message": "Dangling white space",
+      "range": {
+        "startLine": 355,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 20
+      },
+      "revId": "db1b3f4ab7d03cd0bc37bc137f974ff67d020525",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40d4c840_78cf6fc9",
+        "filename": "tests/test_comment_added_chatops.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 31
+      },
+      "writtenOn": "2025-10-22T14:47:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff016528_2317aec0",
       "range": {
         "startLine": 355,
         "startChar": 0,
