@@ -1,0 +1,8 @@
+Verified+1: LFIT GitHub-Gerrit <releng+github-lfit-gerrit@linuxfoundation.org>
+Code-Review+2: Vanessa Valderrama <vvalderrama@linuxfoundation.org>
+Verified+1: LFIT Required GHA <releng+lfit-required-gha@linuxfoundation.org>
+Submitted-by: Vanessa Valderrama <vvalderrama@linuxfoundation.org>
+Submitted-at: Tue, 28 Oct 2025 18:23:43 +0000
+Reviewed-on: https://gerrit.linuxfoundation.org/infra/c/releng/gerrit_to_platform/+/73819
+Project: releng/gerrit_to_platform
+Branch: refs/heads/main
