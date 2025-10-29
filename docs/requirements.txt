@@ -4,7 +4,7 @@
 fastcore
 ghapi
 lfdocs-conf~=0.9
-reno~=4.0.0
+reno~=4.1.0
 Sphinx~=6.1.3
 sphinx-rtd-theme~=3.0.2
 typer
