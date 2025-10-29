@@ -3,7 +3,7 @@
 # under `install_requires` in `setup.cfg` is also listed here!
 fastcore
 ghapi
-lfdocs-conf~=0.8
+lfdocs-conf~=0.9
 reno~=4.0.0
 Sphinx~=6.1.3
 sphinx-rtd-theme~=3.0.2
