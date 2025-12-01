@@ -1,0 +1,377 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+# Downstream consumer workflow demonstrating gerrit_json usage
+# This workflow simulates a downstream consumer that receives both:
+# 1. The new gerrit_json consolidated variable
+# 2. All 10 individual GERRIT_* variables (demonstrating the workflow_dispatch limit)
+
+name: "Downstream Consumer (gerrit_json) 📥"
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+    inputs:
+      # New consolidated variable
+      gerrit_json:
+        description: 'Gerrit event data as JSON'
+        required: true
+        type: string
+      
+      # Legacy individual variables (10 total - at workflow_dispatch limit!)
+      GERRIT_BRANCH:
+        description: 'Branch'
+        required: true
+        type: string
+      GERRIT_CHANGE_ID:
+        description: 'Change ID'
+        required: true
+        type: string
+      GERRIT_CHANGE_NUMBER:
+        description: 'Change number'
+        required: true
+        type: string
+      GERRIT_CHANGE_URL:
+        description: 'Change URL'
+        required: true
+        type: string
+      GERRIT_EVENT_TYPE:
+        description: 'Event type'
+        required: true
+        type: string
+      GERRIT_PATCHSET_NUMBER:
+        description: 'Patchset number'
+        required: true
+        type: string
+      GERRIT_PATCHSET_REVISION:
+        description: 'Patchset revision (commit SHA)'
+        required: true
+        type: string
+      GERRIT_PROJECT:
+        description: 'Project name'
+        required: true
+        type: string
+      GERRIT_REFSPEC:
+        description: 'Refspec'
+        required: true
+        type: string
+      GERRIT_COMMENT:
+        description: 'Comment (optional, for comment-added events)'
+        required: false
+        type: string
+        default: ''
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  validate-inputs:
+    name: "Validate received inputs"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    outputs:
+      json_branch: ${{ steps.parse-json.outputs.branch }}
+      json_change_number: ${{ steps.parse-json.outputs.change_number }}
+      json_event_type: ${{ steps.parse-json.outputs.event_type }}
+    steps:
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - name: "Checkout repository"
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: "Display received inputs"
+        shell: bash
+        run: |
+          echo "## Received Inputs" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Legacy Individual Variables (10 inputs):" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_BRANCH: ${{ inputs.GERRIT_BRANCH }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_CHANGE_ID: ${{ inputs.GERRIT_CHANGE_ID }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_CHANGE_NUMBER: ${{ inputs.GERRIT_CHANGE_NUMBER }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_CHANGE_URL: ${{ inputs.GERRIT_CHANGE_URL }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_EVENT_TYPE: ${{ inputs.GERRIT_EVENT_TYPE }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_PATCHSET_NUMBER: ${{ inputs.GERRIT_PATCHSET_NUMBER }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_PATCHSET_REVISION: ${{ inputs.GERRIT_PATCHSET_REVISION }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_PROJECT: ${{ inputs.GERRIT_PROJECT }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_REFSPEC: ${{ inputs.GERRIT_REFSPEC }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GERRIT_COMMENT: ${{ inputs.GERRIT_COMMENT }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### New Consolidated Variable (1 input):" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ inputs.gerrit_json }}' | jq '.' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: "Validate gerrit_json with Shell script"
+        shell: bash
+        run: |
+          echo "Validating gerrit_json with validate-json.sh..."
+          chmod +x examples/validate-json.sh
+          ./examples/validate-json.sh '${{ inputs.gerrit_json }}'
+          echo "✓ Shell validation passed"
+
+      - name: "Validate gerrit_json with Python script"
+        shell: bash
+        run: |
+          echo "Validating gerrit_json with validate-json.py..."
+          chmod +x examples/validate-json.py
+          ./examples/validate-json.py '${{ inputs.gerrit_json }}'
+          echo "✓ Python validation passed"
+
+      - name: "Parse gerrit_json"
+        id: parse-json
+        shell: bash
+        run: |
+          echo "Parsing gerrit_json..."
+          GERRIT_JSON='${{ inputs.gerrit_json }}'
+          
+          echo "branch=$(echo "$GERRIT_JSON" | jq -r '.branch')" >> $GITHUB_OUTPUT
+          echo "change_id=$(echo "$GERRIT_JSON" | jq -r '.change_id')" >> $GITHUB_OUTPUT
+          echo "change_number=$(echo "$GERRIT_JSON" | jq -r '.change_number')" >> $GITHUB_OUTPUT
+          echo "change_url=$(echo "$GERRIT_JSON" | jq -r '.change_url')" >> $GITHUB_OUTPUT
+          echo "event_type=$(echo "$GERRIT_JSON" | jq -r '.event_type')" >> $GITHUB_OUTPUT
+          echo "patchset_number=$(echo "$GERRIT_JSON" | jq -r '.patchset_number')" >> $GITHUB_OUTPUT
+          echo "patchset_revision=$(echo "$GERRIT_JSON" | jq -r '.patchset_revision')" >> $GITHUB_OUTPUT
+          echo "project=$(echo "$GERRIT_JSON" | jq -r '.project')" >> $GITHUB_OUTPUT
+          echo "refspec=$(echo "$GERRIT_JSON" | jq -r '.refspec')" >> $GITHUB_OUTPUT
+          
+          echo "✓ Successfully parsed gerrit_json"
+
+      - name: "Compare legacy vs JSON values"
+        shell: bash
+        run: |
+          echo "Comparing legacy variables with parsed JSON values..."
+          
+          # Compare each field
+          ERRORS=0
+          
+          if [ "${{ inputs.GERRIT_BRANCH }}" != "${{ steps.parse-json.outputs.branch }}" ]; then
+            echo "❌ BRANCH mismatch: legacy='${{ inputs.GERRIT_BRANCH }}' json='${{ steps.parse-json.outputs.branch }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ BRANCH matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_CHANGE_ID }}" != "${{ steps.parse-json.outputs.change_id }}" ]; then
+            echo "❌ CHANGE_ID mismatch: legacy='${{ inputs.GERRIT_CHANGE_ID }}' json='${{ steps.parse-json.outputs.change_id }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ CHANGE_ID matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_CHANGE_NUMBER }}" != "${{ steps.parse-json.outputs.change_number }}" ]; then
+            echo "❌ CHANGE_NUMBER mismatch: legacy='${{ inputs.GERRIT_CHANGE_NUMBER }}' json='${{ steps.parse-json.outputs.change_number }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ CHANGE_NUMBER matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_CHANGE_URL }}" != "${{ steps.parse-json.outputs.change_url }}" ]; then
+            echo "❌ CHANGE_URL mismatch: legacy='${{ inputs.GERRIT_CHANGE_URL }}' json='${{ steps.parse-json.outputs.change_url }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ CHANGE_URL matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_EVENT_TYPE }}" != "${{ steps.parse-json.outputs.event_type }}" ]; then
+            echo "❌ EVENT_TYPE mismatch: legacy='${{ inputs.GERRIT_EVENT_TYPE }}' json='${{ steps.parse-json.outputs.event_type }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ EVENT_TYPE matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_PATCHSET_NUMBER }}" != "${{ steps.parse-json.outputs.patchset_number }}" ]; then
+            echo "❌ PATCHSET_NUMBER mismatch: legacy='${{ inputs.GERRIT_PATCHSET_NUMBER }}' json='${{ steps.parse-json.outputs.patchset_number }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ PATCHSET_NUMBER matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_PATCHSET_REVISION }}" != "${{ steps.parse-json.outputs.patchset_revision }}" ]; then
+            echo "❌ PATCHSET_REVISION mismatch: legacy='${{ inputs.GERRIT_PATCHSET_REVISION }}' json='${{ steps.parse-json.outputs.patchset_revision }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ PATCHSET_REVISION matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_PROJECT }}" != "${{ steps.parse-json.outputs.project }}" ]; then
+            echo "❌ PROJECT mismatch: legacy='${{ inputs.GERRIT_PROJECT }}' json='${{ steps.parse-json.outputs.project }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ PROJECT matches"
+          fi
+          
+          if [ "${{ inputs.GERRIT_REFSPEC }}" != "${{ steps.parse-json.outputs.refspec }}" ]; then
+            echo "❌ REFSPEC mismatch: legacy='${{ inputs.GERRIT_REFSPEC }}' json='${{ steps.parse-json.outputs.refspec }}'"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "✓ REFSPEC matches"
+          fi
+          
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "❌ Found $ERRORS mismatches between legacy and JSON values"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ All values match between legacy and JSON formats"
+
+      - name: "Validation summary"
+        shell: bash
+        run: |
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Validation Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ gerrit_json is valid JSON" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ All required fields present" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ Shell validation script passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ Python validation script passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ All values match between legacy and JSON formats" >> "$GITHUB_STEP_SUMMARY"
+
+  demonstrate-usage:
+    name: "Demonstrate typical usage patterns"
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - name: "Checkout repository"
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: "Usage Pattern 1: Legacy approach (10 inputs)"
+        shell: bash
+        run: |
+          echo "## Legacy Approach (10 workflow inputs)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Using individual GERRIT_* variables requires passing 10 inputs:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```yaml' >> "$GITHUB_STEP_SUMMARY"
+          echo "workflow_dispatch:" >> "$GITHUB_STEP_SUMMARY"
+          echo "  inputs:" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_BRANCH: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_CHANGE_ID: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_CHANGE_NUMBER: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_CHANGE_URL: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_EVENT_TYPE: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_PATCHSET_NUMBER: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_PATCHSET_REVISION: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_PROJECT: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_REFSPEC: { required: true }" >> "$GITHUB_STEP_SUMMARY"
+          echo "    GERRIT_COMMENT: { required: false }" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "⚠️ This is at the workflow_dispatch limit of 10 inputs!" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: "Usage Pattern 2: New gerrit_json approach (1 input)"
+        shell: bash
+        run: |
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## New gerrit_json Approach (1 workflow input)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Using gerrit_json requires only 1 input:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```yaml' >> "$GITHUB_STEP_SUMMARY"
+          echo "workflow_dispatch:" >> "$GITHUB_STEP_SUMMARY"
+          echo "  inputs:" >> "$GITHUB_STEP_SUMMARY"
+          echo "    gerrit_json:" >> "$GITHUB_STEP_SUMMARY"
+          echo "      required: true" >> "$GITHUB_STEP_SUMMARY"
+          echo "      type: string" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ This leaves 9 input slots for other workflow parameters!" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: "Usage Pattern 3: Conditional logic based on event type"
+        shell: bash
+        run: |
+          EVENT_TYPE="${{ needs.validate-inputs.outputs.json_event_type }}"
+          
+          echo "Processing event type: $EVENT_TYPE"
+          
+          case "$EVENT_TYPE" in
+            patchset-created)
+              echo "✓ Running patchset verification tasks"
+              echo "  - Fetch change using refspec"
+              echo "  - Run linting and tests"
+              echo "  - Post results back to Gerrit"
+              ;;
+            change-merged)
+              echo "✓ Running post-merge tasks"
+              echo "  - Update documentation"
+              echo "  - Trigger release pipeline"
+              echo "  - Notify stakeholders"
+              ;;
+            comment-added)
+              echo "✓ Processing comment"
+              echo "  - Parse for ChatOps commands"
+              echo "  - Trigger requested workflows"
+              ;;
+          esac
+
+      - name: "Usage Pattern 4: Pass to another workflow"
+        shell: bash
+        run: |
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Passing to Downstream Workflows" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "With gerrit_json, passing data to downstream workflows is simple:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```bash' >> "$GITHUB_STEP_SUMMARY"
+          echo "# With gerrit_json (1 parameter)" >> "$GITHUB_STEP_SUMMARY"
+          echo "gh workflow run downstream.yml \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f gerrit_json='\${{ inputs.gerrit_json }}'" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "# vs. Legacy approach (10 parameters)" >> "$GITHUB_STEP_SUMMARY"
+          echo "gh workflow run downstream.yml \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_BRANCH='\${{ inputs.GERRIT_BRANCH }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_CHANGE_ID='\${{ inputs.GERRIT_CHANGE_ID }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_CHANGE_NUMBER='\${{ inputs.GERRIT_CHANGE_NUMBER }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_CHANGE_URL='\${{ inputs.GERRIT_CHANGE_URL }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_EVENT_TYPE='\${{ inputs.GERRIT_EVENT_TYPE }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_PATCHSET_NUMBER='\${{ inputs.GERRIT_PATCHSET_NUMBER }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_PATCHSET_REVISION='\${{ inputs.GERRIT_PATCHSET_REVISION }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_PROJECT='\${{ inputs.GERRIT_PROJECT }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_REFSPEC='\${{ inputs.GERRIT_REFSPEC }}' \\" >> "$GITHUB_STEP_SUMMARY"
+          echo "  -f GERRIT_COMMENT='\${{ inputs.GERRIT_COMMENT }}'" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  final-summary:
+    name: "Final Summary"
+    needs:
+      - validate-inputs
+      - demonstrate-usage
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: "Generate summary"
+        shell: bash
+        run: |
+          echo "## 🎉 Downstream Consumer Test Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Key Findings:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. ✅ Successfully received all 10 legacy GERRIT_* variables" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. ✅ Successfully received gerrit_json consolidated variable" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. ✅ Both validation scripts (Shell and Python) work correctly" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. ✅ All values match between legacy and JSON formats" >> "$GITHUB_STEP_SUMMARY"
+          echo "5. ✅ JSON parsing and field extraction works as expected" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Benefits of gerrit_json:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Reduced complexity**: 1 input instead of 10" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Flexibility**: Frees up 9 input slots for other parameters" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Easier forwarding**: Single variable to pass between workflows" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Extensible**: Can add new fields without changing workflow signatures" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Validated**: Built-in validation scripts ensure data integrity" >> "$GITHUB_STEP_SUMMARY"

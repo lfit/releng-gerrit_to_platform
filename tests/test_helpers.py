@@ -17,6 +17,7 @@ import gerrit_to_platform.github as github  # type: ignore
 import gerrit_to_platform.helpers  # type: ignore
 from gerrit_to_platform.config import Platform  # type: ignore
 from gerrit_to_platform.helpers import (  # type: ignore
+    build_gerrit_json,
     choose_dispatch,
     choose_filter_workflows,
     convert_repo_name,
@@ -191,8 +192,15 @@ def test_find_and_dispatch(mocker, capfd):
         mock_choose_dispatch,
     )
 
-    find_and_dispatch("example-project", "verify", inputs)
+    result = find_and_dispatch("example-project", "verify", inputs)
     actual = capfd.readouterr().out
+    
+    # Verify gerrit_json was added to inputs
+    assert "gerrit_json" in inputs
+    gerrit_json = json.loads(inputs["gerrit_json"])
+    assert gerrit_json["branch"] == "main"
+    assert gerrit_json["change_number"] == "1"
+    assert gerrit_json["event_type"] == "test"
     assert PATCH1_GERRIT_VERIFY in actual
     assert PATCH1_VERIFY not in actual
     assert PATCH1_REQUIRED_VERIFY in actual
@@ -255,3 +263,83 @@ def test_get_magic_repo(mocker):
     expected = None
     actual = get_magic_repo(Platform.GITLAB)
     assert expected == actual
+
+
+def test_build_gerrit_json(mocker):
+    """Test build_gerrit_json"""
+    inputs = {
+        "GERRIT_BRANCH": "master",
+        "GERRIT_CHANGE_ID": "I1234567890abcdef1234567890abcdef12345678",
+        "GERRIT_CHANGE_NUMBER": "12345",
+        "GERRIT_CHANGE_URL": "https://gerrit.example.com/r/c/test-project/+/12345",
+        "GERRIT_EVENT_TYPE": "patchset-created",
+        "GERRIT_PATCHSET_NUMBER": "3",
+        "GERRIT_PATCHSET_REVISION": "abcdef1234567890abcdef1234567890abcdef12",
+        "GERRIT_PROJECT": "test-project",
+        "GERRIT_REFSPEC": "refs/changes/45/12345/3",
+    }
+
+    actual_json = build_gerrit_json(inputs)
+    actual = json.loads(actual_json)
+
+    # Verify all required fields are present
+    assert actual["branch"] == "master"
+    assert actual["change_id"] == "I1234567890abcdef1234567890abcdef12345678"
+    assert actual["change_number"] == "12345"
+    assert actual["change_url"] == "https://gerrit.example.com/r/c/test-project/+/12345"
+    assert actual["event_type"] == "patchset-created"
+    assert actual["patchset_number"] == "3"
+    assert actual["patchset_revision"] == "abcdef1234567890abcdef1234567890abcdef12"
+    assert actual["project"] == "test-project"
+    assert actual["refspec"] == "refs/changes/45/12345/3"
+    
+    # Verify comment is not present when not in inputs
+    assert "comment" not in actual
+
+
+def test_build_gerrit_json_with_comment(mocker):
+    """Test build_gerrit_json with optional comment field"""
+    inputs = {
+        "GERRIT_BRANCH": "main",
+        "GERRIT_CHANGE_ID": "Iabcdef",
+        "GERRIT_CHANGE_NUMBER": "67890",
+        "GERRIT_CHANGE_URL": "https://gerrit.example.com/r/c/test/+/67890",
+        "GERRIT_EVENT_TYPE": "comment-added",
+        "GERRIT_PATCHSET_NUMBER": "1",
+        "GERRIT_PATCHSET_REVISION": "fedcba0987654321fedcba0987654321fedcba09",
+        "GERRIT_PROJECT": "test",
+        "GERRIT_REFSPEC": "refs/changes/90/67890/1",
+        "GERRIT_COMMENT": "gha-run test-workflow param1=value1",
+    }
+
+    actual_json = build_gerrit_json(inputs)
+    actual = json.loads(actual_json)
+
+    # Verify comment field is present
+    assert actual["comment"] == "gha-run test-workflow param1=value1"
+    assert actual["event_type"] == "comment-added"
+
+
+def test_build_gerrit_json_is_compact(mocker):
+    """Test that build_gerrit_json produces compact JSON without spaces"""
+    inputs = {
+        "GERRIT_BRANCH": "main",
+        "GERRIT_CHANGE_ID": "I123",
+        "GERRIT_CHANGE_NUMBER": "1",
+        "GERRIT_CHANGE_URL": "https://example.com/1",
+        "GERRIT_EVENT_TYPE": "patchset-created",
+        "GERRIT_PATCHSET_NUMBER": "1",
+        "GERRIT_PATCHSET_REVISION": "abc123",
+        "GERRIT_PROJECT": "proj",
+        "GERRIT_REFSPEC": "refs/changes/01/1/1",
+    }
+
+    actual_json = build_gerrit_json(inputs)
+    
+    # Verify no spaces after colons or commas (compact JSON)
+    assert ": " not in actual_json
+    assert ", " not in actual_json
+    
+    # Verify it's still valid JSON
+    parsed = json.loads(actual_json)
+    assert parsed["branch"] == "main"

@@ -1,0 +1,269 @@
+# SPDX-License-Identifier: Apache-2.0
+##############################################################################
+# Copyright (c) 2024 The Linux Foundation and others.
+#
+# All rights reserved. This program and the accompanying materials are made
+# available under the terms of the Apache-2.0 license which accompanies this
+# distribution, and is available at
+# https://opensource.org/licenses/Apache-2.0
+##############################################################################
+#
+# Example GitHub Actions workflow demonstrating gerrit_json usage
+#
+# This workflow shows how to receive and parse the consolidated gerrit_json
+# variable alongside the legacy GERRIT_* variables during the transition period.
+#
+##############################################################################
+
+name: Gerrit Verify Example
+
+on:
+  workflow_dispatch:
+    inputs:
+      # New consolidated JSON variable
+      gerrit_json:
+        description: 'Gerrit event data as JSON'
+        required: true
+        type: string
+      
+      # Legacy individual variables (still supported during transition)
+      GERRIT_BRANCH:
+        description: 'Branch'
+        required: true
+        type: string
+      GERRIT_CHANGE_NUMBER:
+        description: 'Change number'
+        required: true
+        type: string
+      GERRIT_CHANGE_ID:
+        description: 'Change ID'
+        required: true
+        type: string
+      GERRIT_CHANGE_URL:
+        description: 'Change URL'
+        required: true
+        type: string
+      GERRIT_EVENT_TYPE:
+        description: 'Event type'
+        required: true
+        type: string
+      GERRIT_PATCHSET_NUMBER:
+        description: 'Patchset number'
+        required: true
+        type: string
+      GERRIT_PATCHSET_REVISION:
+        description: 'Patchset revision (commit SHA)'
+        required: true
+        type: string
+      GERRIT_PROJECT:
+        description: 'Project name'
+        required: true
+        type: string
+      GERRIT_REFSPEC:
+        description: 'Refspec'
+        required: true
+        type: string
+
+jobs:
+  validate-json:
+    name: Validate gerrit_json
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.parse.outputs.branch }}
+      change_number: ${{ steps.parse.outputs.change_number }}
+      event_type: ${{ steps.parse.outputs.event_type }}
+      refspec: ${{ steps.parse.outputs.refspec }}
+      project: ${{ steps.parse.outputs.project }}
+    steps:
+      - name: Validate JSON structure
+        run: |
+          echo "Validating gerrit_json input..."
+          echo '${{ inputs.gerrit_json }}' | jq empty
+          echo "✓ Valid JSON"
+          
+      - name: Display pretty JSON
+        run: |
+          echo "Gerrit event data:"
+          echo '${{ inputs.gerrit_json }}' | jq '.'
+          
+      - name: Parse gerrit_json
+        id: parse
+        run: |
+          echo "Extracting fields from gerrit_json..."
+          echo "branch=$(echo '${{ inputs.gerrit_json }}' | jq -r '.branch')" >> $GITHUB_OUTPUT
+          echo "change_number=$(echo '${{ inputs.gerrit_json }}' | jq -r '.change_number')" >> $GITHUB_OUTPUT
+          echo "change_id=$(echo '${{ inputs.gerrit_json }}' | jq -r '.change_id')" >> $GITHUB_OUTPUT
+          echo "event_type=$(echo '${{ inputs.gerrit_json }}' | jq -r '.event_type')" >> $GITHUB_OUTPUT
+          echo "refspec=$(echo '${{ inputs.gerrit_json }}' | jq -r '.refspec')" >> $GITHUB_OUTPUT
+          echo "project=$(echo '${{ inputs.gerrit_json }}' | jq -r '.project')" >> $GITHUB_OUTPUT
+          
+      - name: Verify parsed data
+        run: |
+          echo "Parsed data:"
+          echo "  Branch: ${{ steps.parse.outputs.branch }}"
+          echo "  Change: ${{ steps.parse.outputs.change_number }}"
+          echo "  Change ID: ${{ steps.parse.outputs.change_id }}"
+          echo "  Event: ${{ steps.parse.outputs.event_type }}"
+          echo "  Refspec: ${{ steps.parse.outputs.refspec }}"
+          echo "  Project: ${{ steps.parse.outputs.project }}"
+
+  verify-with-json:
+    name: Verify using gerrit_json (recommended)
+    runs-on: ubuntu-latest
+    needs: validate-json
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate-json.outputs.branch }}
+          fetch-depth: 0
+          
+      - name: Fetch Gerrit change
+        run: |
+          echo "Fetching change ${{ needs.validate-json.outputs.change_number }}"
+          git fetch origin ${{ needs.validate-json.outputs.refspec }}
+          git checkout FETCH_HEAD
+          
+      - name: Display commit info
+        run: |
+          echo "Current commit:"
+          git log -1 --oneline
+          git show --stat
+          
+      - name: Run verification
+        run: |
+          echo "Running verification for change ${{ needs.validate-json.outputs.change_number }}"
+          echo "Event type: ${{ needs.validate-json.outputs.event_type }}"
+          # Add your verification commands here
+          echo "✓ Verification passed"
+
+  verify-with-legacy:
+    name: Verify using legacy variables (for comparison)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.GERRIT_BRANCH }}
+          fetch-depth: 0
+          
+      - name: Fetch Gerrit change
+        run: |
+          echo "Fetching change ${{ inputs.GERRIT_CHANGE_NUMBER }}"
+          git fetch origin ${{ inputs.GERRIT_REFSPEC }}
+          git checkout FETCH_HEAD
+          
+      - name: Display commit info
+        run: |
+          echo "Current commit:"
+          git log -1 --oneline
+          
+      - name: Run verification
+        run: |
+          echo "Running verification for change ${{ inputs.GERRIT_CHANGE_NUMBER }}"
+          echo "Event type: ${{ inputs.GERRIT_EVENT_TYPE }}"
+          # Add your verification commands here
+          echo "✓ Verification passed"
+
+  advanced-json-parsing:
+    name: Advanced JSON parsing examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse with Python
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+          
+          # Parse the gerrit_json input
+          gerrit_data = json.loads('''${{ inputs.gerrit_json }}''')
+          
+          # Access fields
+          branch = gerrit_data['branch']
+          change_number = gerrit_data['change_number']
+          event_type = gerrit_data['event_type']
+          
+          print(f"Processing Gerrit event:")
+          print(f"  Type: {event_type}")
+          print(f"  Change: {change_number}")
+          print(f"  Branch: {branch}")
+          
+          # Conditional logic based on event type
+          if event_type == 'patchset-created':
+              print("This is a new patchset - running pre-merge verification")
+          elif event_type == 'change-merged':
+              print("Change merged - running post-merge tasks")
+          elif event_type == 'comment-added':
+              print("Comment added - checking for commands")
+              if 'comment' in gerrit_data:
+                  print(f"  Comment: {gerrit_data['comment']}")
+          
+          # Export to environment for subsequent steps
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"parsed_branch={branch}\n")
+              f.write(f"parsed_change={change_number}\n")
+          EOF
+          
+      - name: Conditional execution based on event type
+        run: |
+          EVENT_TYPE=$(echo '${{ inputs.gerrit_json }}' | jq -r '.event_type')
+          
+          case "$EVENT_TYPE" in
+            patchset-created)
+              echo "Running patchset-created specific tasks"
+              ;;
+            change-merged)
+              echo "Running change-merged specific tasks"
+              ;;
+            comment-added)
+              echo "Running comment-added specific tasks"
+              ;;
+            *)
+              echo "Unknown event type: $EVENT_TYPE"
+              exit 1
+              ;;
+          esac
+          
+      - name: Extract optional fields
+        run: |
+          # Check if optional 'comment' field exists (only in comment-added events)
+          if echo '${{ inputs.gerrit_json }}' | jq -e '.comment' > /dev/null; then
+            COMMENT=$(echo '${{ inputs.gerrit_json }}' | jq -r '.comment')
+            echo "Comment found: $COMMENT"
+            
+            # Parse ChatOps commands
+            if [[ "$COMMENT" =~ ^gha-run ]]; then
+              echo "ChatOps command detected"
+              echo "Command: $COMMENT"
+            fi
+          else
+            echo "No comment field in this event"
+          fi
+          
+      - name: Validate all required fields
+        run: |
+          REQUIRED_FIELDS=("branch" "change_id" "change_number" "change_url" "event_type" "patchset_number" "patchset_revision" "project" "refspec")
+          
+          echo "Validating required fields..."
+          for field in "${REQUIRED_FIELDS[@]}"; do
+            if ! echo '${{ inputs.gerrit_json }}' | jq -e ".$field" > /dev/null; then
+              echo "ERROR: Missing required field: $field"
+              exit 1
+            fi
+            echo "✓ $field"
+          done
+          echo "All required fields present"
+
+  pass-to-downstream:
+    name: Pass gerrit_json to downstream workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger downstream workflow
+        run: |
+          echo "In a real scenario, you would use repository_dispatch or workflow_dispatch"
+          echo "to pass the gerrit_json to another workflow:"
+          echo ""
+          echo "gh workflow run downstream.yml \\"
+          echo "  -f gerrit_json='${{ inputs.gerrit_json }}'"
+          echo ""
+          echo "This is much simpler than passing 10 individual variables!"

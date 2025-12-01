@@ -9,6 +9,7 @@
 ##############################################################################
 """Common helper functions."""
 
+import json
 import re
 from typing import Callable, Dict, Optional, Union
 
@@ -109,6 +110,9 @@ def find_and_dispatch(
     """
     remotes = get_replication_remotes()
     dispatched_count = 0
+
+    # Add consolidated gerrit_json to inputs
+    inputs["gerrit_json"] = build_gerrit_json(inputs)
 
     for platform in Platform:
         if platform.value not in remotes:
@@ -223,6 +227,35 @@ def get_change_refspec(change_number: str, patchset: str) -> str:
     else:
         ref_shard = change_number[len(change_number) - 2 :]
     return f"refs/changes/{ref_shard}/{change_number}/{patchset}"
+
+
+def build_gerrit_json(inputs: Dict[str, str]) -> str:
+    """
+    Build the gerrit_json consolidated JSON string from GERRIT_ inputs.
+
+    Args:
+        inputs (Dict[str, str]): The inputs dictionary containing GERRIT_ variables
+
+    Returns:
+        str: JSON string containing all Gerrit data with snake_case keys
+    """
+    gerrit_data = {
+        "branch": inputs.get("GERRIT_BRANCH", ""),
+        "change_id": inputs.get("GERRIT_CHANGE_ID", ""),
+        "change_number": inputs.get("GERRIT_CHANGE_NUMBER", ""),
+        "change_url": inputs.get("GERRIT_CHANGE_URL", ""),
+        "event_type": inputs.get("GERRIT_EVENT_TYPE", ""),
+        "patchset_number": inputs.get("GERRIT_PATCHSET_NUMBER", ""),
+        "patchset_revision": inputs.get("GERRIT_PATCHSET_REVISION", ""),
+        "project": inputs.get("GERRIT_PROJECT", ""),
+        "refspec": inputs.get("GERRIT_REFSPEC", ""),
+    }
+
+    # Add optional comment field if present
+    if "GERRIT_COMMENT" in inputs:
+        gerrit_data["comment"] = inputs["GERRIT_COMMENT"]
+
+    return json.dumps(gerrit_data, separators=(",", ":"))
 
 
 def get_magic_repo(platform: Platform) -> Optional[str]:
