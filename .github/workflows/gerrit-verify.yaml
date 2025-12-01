@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: Clear votes
         # yamllint disable-line rule:line-length
-        uses: lfit/gerrit-review-action@537251ec667665b386f70b330b05446e3fc29087  # v0.9
+        uses: lfreleng-actions/gerrit-review-action@537251ec667665b386f70b330b05446e3fc29087  # v0.9
         with:
           host: ${{ vars.LFIT_GERRIT_SERVER }}
           username: ${{ vars.LFIT_GERRIT_SSH_USER }}
@@ -72,7 +72,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
+        uses: lfreleng-actions/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
@@ -92,13 +92,13 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
+        uses: lfreleng-actions/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         with:
           python-version: "3.11"
       - name: Run static analysis and format checkers
@@ -112,12 +112,12 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
+        uses: lfreleng-actions/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         with:
           python-version: '3.11'
       - name: Build package distribution files
@@ -148,13 +148,13 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
+        uses: lfreleng-actions/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         id: setup-python
         with:
           python-version: ${{ matrix.python }}
@@ -189,23 +189,23 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfit/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
+        uses: lfreleng-actions/checkout-gerrit-change-action@54d751e8bd167bc91f7d665dabe33fae87aaaa63  # v0.9
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         with:
           python-version: "3.11"
       - name: Initialize CodeQL
         # yamllint disable-line rule:line-length
-        uses: github/codeql-action/init@4e94bd11f71e507f7f87df81788dff88d1dacbfb  # v4.31.0
+        uses: github/codeql-action/init@ce729e4d353d580e6cacd6a8cf2921b72e5e310a  # codeql-bundle-v2.23.6
         with:
           languages: python
       - name: Perform CodeQL Analysis
         # yamllint disable-line rule:line-length
-        uses: github/codeql-action/analyze@4e94bd11f71e507f7f87df81788dff88d1dacbfb  # v4.31.0
+        uses: github/codeql-action/analyze@ce729e4d353d580e6cacd6a8cf2921b72e5e310a  # codeql-bundle-v2.23.6
 
   finalize:
     needs: test
@@ -228,7 +228,7 @@ jobs:
         uses: im-open/workflow-conclusion@e4f7c4980600fbe0818173e30931d3550801b992  # v2.2.3
       - name: Set vote
         # yamllint disable-line rule:line-length
-        uses: lfit/gerrit-review-action@537251ec667665b386f70b330b05446e3fc29087  # v0.9
+        uses: lfreleng-actions/gerrit-review-action@537251ec667665b386f70b330b05446e3fc29087  # v0.9
         with:
           host: ${{ vars.LFIT_GERRIT_SERVER }}
           username: ${{ vars.LFIT_GERRIT_SSH_USER }}

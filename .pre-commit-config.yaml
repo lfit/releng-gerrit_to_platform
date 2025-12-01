@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 ci:
+  skip: [gha-workflow-linter]
   autofix_commit_msg: |
     Chore: pre-commit linting updates
 
@@ -84,3 +85,9 @@ repos:
     rev: f999ae59ac949d9b57aaa5569c2d60eb846b3a00  # frozen: v1.7.7.24
     hooks:
       - id: actionlint
+
+  - repo: https://github.com/lfreleng-actions/gha-workflow-linter
+    rev: 6e25590048a9b9c49d81656586dd083f47bb4f93  # frozen: v0.1.11
+    hooks:
+      - id: gha-workflow-linter
+        args: [lint, .github/workflows/, --auto-fix]
