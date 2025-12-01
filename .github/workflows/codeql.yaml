@@ -30,12 +30,12 @@ jobs:
     steps:
       - name: Checkout repository
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         # yamllint disable-line rule:line-length
-        uses: github/codeql-action/init@4e94bd11f71e507f7f87df81788dff88d1dacbfb  # v4.31.0
+        uses: github/codeql-action/init@ce729e4d353d580e6cacd6a8cf2921b72e5e310a  # v4.31.0
         with:
           languages: python
 
