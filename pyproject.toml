@@ -38,7 +38,7 @@ classifiers = [
 
 dependencies = [
     "ghapi~=1.0.3",
-    "typer[all]~=0.15.0",
+    "typer[all]>=0.15,<0.22",
     "xdg~=5.1.1"
 ]
 
