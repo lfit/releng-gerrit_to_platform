@@ -98,7 +98,7 @@ jobs:
           delay: "0s"
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.11"
       - name: Run static analysis and format checkers
@@ -117,7 +117,7 @@ jobs:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: '3.11'
       - name: Build package distribution files
@@ -154,7 +154,7 @@ jobs:
           delay: "0s"
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         id: setup-python
         with:
           python-version: ${{ matrix.python }}
@@ -195,7 +195,7 @@ jobs:
           delay: "0s"
       - name: Configure Python
         # yamllint disable-line rule:line-length
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.11"
       - name: Initialize CodeQL
