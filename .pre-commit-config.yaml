@@ -77,6 +77,8 @@ repos:
     hooks:
       - id: write-good
         files: "\\.(rst|md|markdown|mdown|mkdn)$"
+        # yamllint disable-line rule:line-length
+        exclude: "^(README\\.rst|docs/GITHUB_WORKFLOW_INPUT_LIMIT_SOLUTION\\.md)$"
 
   # Replaces: https://github.com/rhysd/actionlint
   # Permits actionlint to run both locally and with precommit.ci/GitHub
