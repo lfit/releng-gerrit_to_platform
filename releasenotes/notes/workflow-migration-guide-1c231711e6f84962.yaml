@@ -1,0 +1,27 @@
+---
+features:
+  - |
+    Added four annotated example workflows in ``examples/workflows/``
+    demonstrating how to build Gerrit-integrated GitHub Actions workflows:
+
+    * ``github-vanilla-verify.yaml`` — Baseline GitHub workflow (no Gerrit)
+    * ``gerrit-verify.yaml`` — Gerrit verify pattern with vote lifecycle
+      and ``checkout-gerrit-change-action``
+    * ``gerrit-merge.yaml`` — Post-merge pattern using comment-only mode
+      and standard ``actions/checkout``
+    * ``gerrit-verify-manual-dispatch.yaml`` — Hybrid pattern supporting
+      both Gerrit dispatch and manual runs from the GitHub Actions UI
+  - |
+    Added a Workflow Migration Guide to the README covering:
+
+    * Verify vs. merge workflow patterns and when to use each
+    * Checkout rules (``checkout-gerrit-change-action`` vs
+      ``actions/checkout``)
+    * Voting rules (full voting, comment-only, advisory modes)
+    * Concurrency groups keyed on ``GERRIT_CHANGE_ID``
+    * Replication delay best practices
+    * Manual dispatch bypass pattern for advisory workflows
+    * Required (organization-wide) workflow configuration
+    * Companion GitHub Actions (``gerrit-review-action``,
+      ``checkout-gerrit-change-action``)
+    * Vanilla-to-Gerrit migration checklist
