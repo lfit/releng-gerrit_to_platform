@@ -1,0 +1,255 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+# =============================================================================
+# EXAMPLE 4: Gerrit Verify with Manual Dispatch Bypass
+# =============================================================================
+# This workflow extends gerrit-verify.yaml (Example 2) with the ability to
+# run MANUALLY from the GitHub Actions UI — without any Gerrit integration.
+#
+# WHY THIS PATTERN EXISTS:
+#
+#   Sometimes you want to run a verification workflow directly against the
+#   mirror content (e.g., to test a branch tip, debug CI, or run on-demand
+#   checks) without going through Gerrit at all. This pattern makes that
+#   possible by:
+#
+#     1. Making all GERRIT_* inputs OPTIONAL (required: false with defaults).
+#     2. Adding a boolean MANUAL_DISPATCH input that signals "skip Gerrit".
+#     3. Wrapping Gerrit-specific jobs (clear-vote, vote) in conditionals
+#        so they are skipped during manual runs.
+#     4. Switching the checkout strategy based on whether Gerrit inputs
+#        are present (Gerrit checkout) or absent (standard checkout).
+#
+# WHEN TO USE THIS PATTERN:
+#
+#   - Workflows that do NOT produce artifacts requiring Gerrit gating
+#   - Advisory/informational checks (linting, static analysis, docs builds)
+#   - Debugging CI pipelines without pushing a Gerrit patchset
+#   - Workflows where the "Run workflow" button in GitHub UI is valuable
+#
+# WHEN NOT TO USE THIS PATTERN:
+#
+#   - Gating workflows where a Verified vote is mandatory
+#   - Workflows where skipping Gerrit integration could cause confusion
+#   - Required (organization-wide) workflows — these are always Gerrit-triggered
+#
+# HOW IT WORKS:
+#
+#   Gerrit dispatch (default):
+#     gerrit_to_platform dispatches with all 9 GERRIT_* inputs populated.
+#     MANUAL_DISPATCH defaults to false. The workflow behaves identically
+#     to the standard gerrit-verify.yaml — votes are cast, Gerrit checkout
+#     is used, and results are reported.
+#
+#   Manual dispatch (from GitHub UI):
+#     A developer clicks "Run workflow" in the Actions tab, optionally
+#     picks a branch, and sets MANUAL_DISPATCH to true. GERRIT_* inputs
+#     are empty/default. Gerrit voting jobs are skipped, standard
+#     actions/checkout is used against the selected branch.
+#
+# NOTE ON INPUT LIMITS:
+#
+#   GitHub increased the workflow_dispatch input limit from 10 to 25 in
+#   December 2025. With 9 GERRIT_* inputs + MANUAL_DISPATCH, this workflow
+#   uses 10 inputs — well within the current limit and leaving 15 slots
+#   for additional custom parameters if needed.
+# =============================================================================
+
+---
+name: Gerrit Verify (Manual Dispatch Compatible)
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+    inputs:
+      # -----------------------------------------------------------------
+      # MANUAL DISPATCH TOGGLE
+      # -----------------------------------------------------------------
+      # Set to true when running from the GitHub UI without Gerrit.
+      # When true, Gerrit voting jobs are skipped and standard checkout
+      # is used instead of the Gerrit change checkout action.
+      # -----------------------------------------------------------------
+      MANUAL_DISPATCH:
+        description: "Set to true to run without Gerrit (skips voting)"
+        required: false
+        type: boolean
+        default: false
+
+      # -----------------------------------------------------------------
+      # GERRIT INPUTS — all optional for manual dispatch compatibility
+      # -----------------------------------------------------------------
+      # When gerrit_to_platform dispatches this workflow, it provides all
+      # nine values. When a human triggers manually, these are left empty.
+      # -----------------------------------------------------------------
+      GERRIT_BRANCH:
+        description: "Branch that change is against"
+        required: false
+        type: string
+        default: ""
+      GERRIT_CHANGE_ID:
+        description: "The ID for the change"
+        required: false
+        type: string
+        default: ""
+      GERRIT_CHANGE_NUMBER:
+        description: "The Gerrit number"
+        required: false
+        type: string
+        default: ""
+      GERRIT_CHANGE_URL:
+        description: "URL to the change"
+        required: false
+        type: string
+        default: ""
+      GERRIT_EVENT_TYPE:
+        description: "Gerrit event type"
+        required: false
+        type: string
+        default: ""
+      GERRIT_PATCHSET_NUMBER:
+        description: "The patch number for the change"
+        required: false
+        type: string
+        default: ""
+      GERRIT_PATCHSET_REVISION:
+        description: "The revision sha"
+        required: false
+        type: string
+        default: ""
+      GERRIT_PROJECT:
+        description: "Project in Gerrit"
+        required: false
+        type: string
+        default: ""
+      GERRIT_REFSPEC:
+        description: "Gerrit refspec of change"
+        required: false
+        type: string
+        default: ""
+
+concurrency:
+  # When dispatched by Gerrit, group by GERRIT_CHANGE_ID so re-triggers
+  # cancel previous runs. For manual dispatch, fall back to github.run_id
+  # so that concurrent manual runs do not cancel each other.
+  group: ${{ github.event.inputs.GERRIT_CHANGE_ID || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # ==========================================================================
+  # JOB 1: clear-vote (CONDITIONAL — skipped during manual dispatch)
+  # ==========================================================================
+  # The condition checks that MANUAL_DISPATCH is not true AND that the
+  # required Gerrit inputs are present. Both guards are needed because:
+  #   - MANUAL_DISPATCH provides explicit intent
+  #   - The GERRIT_CHANGE_NUMBER check is a safety net in case someone
+  #     forgets to set MANUAL_DISPATCH but leaves Gerrit inputs empty
+  # ==========================================================================
+  clear-vote:
+    if: >-
+      inputs.MANUAL_DISPATCH == false
+      && inputs.GERRIT_CHANGE_NUMBER != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear votes
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/gerrit-review-action@main
+        with:
+          host: ${{ vars.GERRIT_SERVER }}
+          username: ${{ vars.GERRIT_SSH_USER }}
+          key: ${{ secrets.GERRIT_SSH_PRIVKEY }}
+          known_hosts: ${{ vars.GERRIT_KNOWN_HOSTS }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: clear
+      - name: Allow replication
+        run: sleep 10s
+
+  # ==========================================================================
+  # JOB 2: build-and-test (ALWAYS runs — adapts checkout strategy)
+  # ==========================================================================
+  # This is the primary CI job. It runs regardless of dispatch mode.
+  #
+  # The checkout strategy adapts:
+  #   - Gerrit dispatch: uses checkout-gerrit-change-action to fetch the
+  #     unmerged change ref from the Gerrit server / GitHub mirror.
+  #   - Manual dispatch: uses standard actions/checkout against the
+  #     branch selected in the GitHub UI (github.ref).
+  #
+  # The "if" conditions on checkout steps use GERRIT_REFSPEC as the
+  # discriminator — it is always populated by gerrit_to_platform and
+  # always empty during manual dispatch.
+  # ==========================================================================
+  build-and-test:
+    # This condition ensures the job runs when clear-vote was skipped
+    # (manual dispatch) OR when it succeeded (Gerrit dispatch). If
+    # clear-vote fails (e.g., SSH connectivity issue), we do NOT want
+    # to proceed — a bare always() would mask that failure.
+    if: >-
+      needs.clear-vote.result == 'success'
+      || needs.clear-vote.result == 'skipped'
+    needs: clear-vote
+    runs-on: ubuntu-latest
+    steps:
+      # --- Gerrit Checkout (used when dispatched by gerrit_to_platform) ---
+      - name: Checkout Gerrit change
+        if: inputs.GERRIT_REFSPEC != ''
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/checkout-gerrit-change-action@main
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+          gerrit-project: ${{ inputs.GERRIT_PROJECT }}
+          gerrit-url: ${{ vars.GERRIT_URL }}
+          delay: "0s"
+          ref: refs/heads/${{ inputs.GERRIT_BRANCH }}
+
+      # --- Standard Checkout (used for manual dispatch) ---
+      - name: Checkout repository (manual)
+        if: inputs.GERRIT_REFSPEC == ''
+        uses: actions/checkout@v4
+
+      # --- Your CI Steps (identical regardless of dispatch mode) ---
+      - name: Hello CI!
+        run: |
+          if [ "${{ inputs.MANUAL_DISPATCH }}" = "true" ]; then
+            echo "Hello CI! Running in MANUAL DISPATCH mode."
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Gerrit voting is DISABLED for this run."
+          else
+            echo "Hello CI! Running in GERRIT DISPATCH mode."
+            echo "Project: ${{ inputs.GERRIT_PROJECT }}"
+            echo "Branch: ${{ inputs.GERRIT_BRANCH }}"
+            echo "Change: ${{ inputs.GERRIT_CHANGE_NUMBER }}"
+            echo "Patchset: ${{ inputs.GERRIT_PATCHSET_NUMBER }}"
+            echo "Refspec: ${{ inputs.GERRIT_REFSPEC }}"
+          fi
+
+  # ==========================================================================
+  # JOB 3: vote (CONDITIONAL — skipped during manual dispatch)
+  # ==========================================================================
+  # Same guard as clear-vote: only runs when dispatched by Gerrit with
+  # valid change information. During manual runs, the workflow simply
+  # ends after build-and-test — no vote is cast.
+  # ==========================================================================
+  vote:
+    if: >-
+      always()
+      && inputs.MANUAL_DISPATCH == false
+      && inputs.GERRIT_CHANGE_NUMBER != ''
+    needs: [clear-vote, build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get conclusion
+        # yamllint disable-line rule:line-length
+        uses: im-open/workflow-conclusion@v2.2.3
+      - name: Set vote
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/gerrit-review-action@main
+        with:
+          host: ${{ vars.GERRIT_SERVER }}
+          username: ${{ vars.GERRIT_SSH_USER }}
+          key: ${{ secrets.GERRIT_SSH_PRIVKEY }}
+          known_hosts: ${{ vars.GERRIT_KNOWN_HOSTS }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: ${{ env.WORKFLOW_CONCLUSION }}
