@@ -1,0 +1,184 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+# =============================================================================
+# EXAMPLE 2: Gerrit Verify Workflow (Voting on Open Changes)
+# =============================================================================
+# This is the Gerrit-integrated equivalent of github-vanilla-verify.yaml.
+#
+# KEY DIFFERENCES FROM A VANILLA GITHUB WORKFLOW:
+#
+#   1. TRIGGER: Only workflow_dispatch — gerrit_to_platform calls the GitHub
+#      API to dispatch this workflow when a patchset is created in Gerrit.
+#      There are NO pull_request or push triggers.
+#
+#   2. INPUTS: Nine GERRIT_* inputs are required. These are populated
+#      automatically by gerrit_to_platform when it dispatches the workflow.
+#
+#   3. CHECKOUT: You MUST use checkout-gerrit-change-action instead of
+#      actions/checkout. The GitHub mirror does NOT contain the unmerged
+#      Gerrit change refs — only the Gerrit checkout action fetches them.
+#
+#   4. VOTING: Verification workflows vote on the Gerrit change:
+#      - A "clear" vote at the start resets previous results.
+#      - A "success" or "failure" vote at the end reports the outcome.
+#      The gerrit-review-action handles this via SSH.
+#
+#   5. CONCURRENCY: Keyed on GERRIT_CHANGE_ID so that re-triggering
+#      a verify on the same change cancels the previous run.
+#
+#   6. FILENAME: Must contain 'gerrit' AND the search filter ('verify')
+#      so that gerrit_to_platform can discover and dispatch it.
+#      Example: gerrit-verify.yaml, gerrit-sonar-verify.yaml
+# =============================================================================
+
+---
+name: Gerrit Verify
+
+# yamllint disable-line rule:truthy
+on:
+  # --- TRIGGER: workflow_dispatch ONLY ---
+  # gerrit_to_platform dispatches this workflow via the GitHub API.
+  # These nine GERRIT_* inputs are ALWAYS provided by the dispatcher.
+  workflow_dispatch:
+    inputs:
+      GERRIT_BRANCH:
+        description: "Branch that change is against"
+        required: true
+        type: string
+      GERRIT_CHANGE_ID:
+        description: "The ID for the change"
+        required: true
+        type: string
+      GERRIT_CHANGE_NUMBER:
+        description: "The Gerrit number"
+        required: true
+        type: string
+      GERRIT_CHANGE_URL:
+        description: "URL to the change"
+        required: true
+        type: string
+      GERRIT_EVENT_TYPE:
+        description: "Gerrit event type"
+        required: true
+        type: string
+      GERRIT_PATCHSET_NUMBER:
+        description: "The patch number for the change"
+        required: true
+        type: string
+      GERRIT_PATCHSET_REVISION:
+        description: "The revision sha"
+        required: true
+        type: string
+      GERRIT_PROJECT:
+        description: "Project in Gerrit"
+        required: true
+        type: string
+      GERRIT_REFSPEC:
+        description: "Gerrit refspec of change"
+        required: true
+        type: string
+
+# --- CONCURRENCY GROUP ---
+# Keyed on GERRIT_CHANGE_ID so that pushing a new patchset to the same
+# Gerrit change automatically cancels any in-progress run for that change.
+# Falls back to github.run_id for manual runs without Gerrit inputs.
+concurrency:
+  group: ${{ github.event.inputs.GERRIT_CHANGE_ID || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # ==========================================================================
+  # JOB 1: clear-vote
+  # ==========================================================================
+  # Verification jobs can run many times on the same change (every new
+  # patchset, every "recheck" comment). The first thing we do is CLEAR
+  # any previous Verified vote so the change starts from a clean state.
+  #
+  # We also sleep briefly to allow Gerrit-to-GitHub replication to
+  # propagate the change refs to the GitHub mirror.
+  # ==========================================================================
+  clear-vote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear votes
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/gerrit-review-action@c9df844dc6efe28b85b297c1c6d40390bfa4a378  # v1.0.0
+        with:
+          host: ${{ vars.GERRIT_SERVER }}
+          username: ${{ vars.GERRIT_SSH_USER }}
+          key: ${{ secrets.GERRIT_SSH_PRIVKEY }}
+          known_hosts: ${{ vars.GERRIT_KNOWN_HOSTS }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: clear
+      - name: Allow replication
+        run: sleep 10s
+
+  # ==========================================================================
+  # JOB 2: build-and-test (Primary CI Job)
+  # ==========================================================================
+  # This is the equivalent of the "build-and-test" job from the vanilla
+  # workflow. The ONLY structural change is the checkout step.
+  # ==========================================================================
+  build-and-test:
+    needs: clear-vote
+    runs-on: ubuntu-latest
+    steps:
+      # --- Gerrit Checkout (REPLACES actions/checkout) ---
+      # CRITICAL: You MUST use checkout-gerrit-change-action for verify
+      # workflows. The standard actions/checkout will only see the mirror
+      # content, NOT the unmerged Gerrit change you need to test.
+      #
+      # The action fetches the specific refspec (e.g. refs/changes/40/11540/1)
+      # from the GitHub mirror (or falls back to the Gerrit server via
+      # gerrit-url) and checks out the change on top of the target branch.
+      - name: Checkout Gerrit change
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/checkout-gerrit-change-action@0768d4c4e63940c6198dfb222f9c271d1f72fc18  # v1.0.0
+        with:
+          gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
+          gerrit-project: ${{ inputs.GERRIT_PROJECT }}
+          gerrit-url: ${{ vars.GERRIT_URL }}
+          delay: "0s"
+          ref: refs/heads/${{ inputs.GERRIT_BRANCH }}
+
+      # --- Your CI Steps (unchanged from the vanilla workflow) ---
+      - name: Hello CI!
+        run: |
+          echo "Hello CI! This is a Gerrit-integrated verify workflow."
+          echo "Project: ${{ inputs.GERRIT_PROJECT }}"
+          echo "Branch: ${{ inputs.GERRIT_BRANCH }}"
+          echo "Change: ${{ inputs.GERRIT_CHANGE_NUMBER }}"
+          echo "Patchset: ${{ inputs.GERRIT_PATCHSET_NUMBER }}"
+          echo "Refspec: ${{ inputs.GERRIT_REFSPEC }}"
+
+  # ==========================================================================
+  # JOB 3: vote (Report Result to Gerrit)
+  # ==========================================================================
+  # This job ALWAYS runs (even if previous jobs failed or were cancelled)
+  # and reports the overall workflow conclusion back to Gerrit as a
+  # Verified +1 (success) or Verified -1 (failure) vote.
+  #
+  # The im-open/workflow-conclusion action inspects all prior job results
+  # and sets WORKFLOW_CONCLUSION to "success", "failure", or "cancelled".
+  # ==========================================================================
+  vote:
+    if: ${{ always() }}
+    needs: [clear-vote, build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get conclusion
+        # yamllint disable-line rule:line-length
+        uses: im-open/workflow-conclusion@fce18569e28a9f2ed1feca1e6d4251e6a7365fdc  # v2.2.4
+      - name: Set vote
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/gerrit-review-action@c9df844dc6efe28b85b297c1c6d40390bfa4a378  # v1.0.0
+        with:
+          host: ${{ vars.GERRIT_SERVER }}
+          username: ${{ vars.GERRIT_SSH_USER }}
+          key: ${{ secrets.GERRIT_SSH_PRIVKEY }}
+          known_hosts: ${{ vars.GERRIT_KNOWN_HOSTS }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: ${{ env.WORKFLOW_CONCLUSION }}

@@ -1,0 +1,170 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+# =============================================================================
+# EXAMPLE 3: Gerrit Merge Workflow (Post-Merge / Comment-Only)
+# =============================================================================
+# This workflow runs AFTER a change has been merged in Gerrit. It is the
+# Gerrit equivalent of a "push to main" trigger in a vanilla GitHub workflow.
+#
+# KEY DIFFERENCES FROM A VERIFY WORKFLOW:
+#
+#   1. NO VOTING: The change is already merged/closed. You CANNOT vote on a
+#      merged change. Instead, use comment-only mode to post a status comment
+#      back to the Gerrit change with a link to the GitHub Actions run.
+#
+#   2. STANDARD CHECKOUT: Since the change is already merged, the code is
+#      part of the branch HEAD. You do NOT need checkout-gerrit-change-action.
+#      Use the standard actions/checkout instead.
+#      IMPORTANT: Add a brief sleep BEFORE checkout to allow Gerrit-to-GitHub
+#      replication to sync the merged commit to the GitHub mirror.
+#
+#   3. FILENAME: Must contain 'gerrit' AND 'merge' so that gerrit_to_platform
+#      discovers and dispatches it on the change-merged hook.
+#      Example: gerrit-merge.yaml, gerrit-release-merge.yaml
+#
+#   4. USE CASE: Typically used for release jobs, artifact publishing,
+#      deployment, documentation builds, or anything that should only
+#      happen once a change has landed on the target branch.
+# =============================================================================
+
+---
+name: Gerrit Merge
+
+# yamllint disable-line rule:truthy
+on:
+  # --- TRIGGER: workflow_dispatch ONLY ---
+  # Same nine GERRIT_* inputs as a verify workflow.
+  workflow_dispatch:
+    inputs:
+      GERRIT_BRANCH:
+        description: "Branch that change is against"
+        required: true
+        type: string
+      GERRIT_CHANGE_ID:
+        description: "The ID for the change"
+        required: true
+        type: string
+      GERRIT_CHANGE_NUMBER:
+        description: "The Gerrit number"
+        required: true
+        type: string
+      GERRIT_CHANGE_URL:
+        description: "URL to the change"
+        required: true
+        type: string
+      GERRIT_EVENT_TYPE:
+        description: "Gerrit event type"
+        required: true
+        type: string
+      GERRIT_PATCHSET_NUMBER:
+        description: "The patch number for the change"
+        required: true
+        type: string
+      GERRIT_PATCHSET_REVISION:
+        description: "The revision sha"
+        required: true
+        type: string
+      GERRIT_PROJECT:
+        description: "Project in Gerrit"
+        required: true
+        type: string
+      GERRIT_REFSPEC:
+        description: "Gerrit refspec of change"
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.event.inputs.GERRIT_CHANGE_ID || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # ==========================================================================
+  # JOB 1: notify (Comment-Only Start Notification)
+  # ==========================================================================
+  # Post a comment on the merged Gerrit change indicating that the merge
+  # job has started. Note comment-only: true — no Verified vote is set.
+  # ==========================================================================
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify job start
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/gerrit-review-action@c9df844dc6efe28b85b297c1c6d40390bfa4a378  # v1.0.0
+        with:
+          host: ${{ vars.GERRIT_SERVER }}
+          username: ${{ vars.GERRIT_SSH_USER }}
+          key: ${{ secrets.GERRIT_SSH_PRIVKEY }}
+          known_hosts: ${{ vars.GERRIT_KNOWN_HOSTS }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: clear
+          # --- COMMENT-ONLY MODE ---
+          # This is the critical difference from verify workflows.
+          # The change is already merged so we CANNOT cast votes.
+          # comment-only posts a status message without any vote labels.
+          comment-only: "true"
+      # --- Allow Replication ---
+      # Sleep to give the Gerrit replication plugin time to push the
+      # merged commit to the GitHub mirror before we attempt checkout.
+      - name: Allow replication
+        run: sleep 10s
+
+  # ==========================================================================
+  # JOB 2: build-and-publish (Primary Merge Job)
+  # ==========================================================================
+  # This job performs post-merge actions such as publishing artifacts,
+  # triggering deployments, or updating documentation.
+  #
+  # IMPORTANT: Uses standard actions/checkout (NOT the Gerrit checkout
+  # action) because the change is already part of the branch.
+  # ==========================================================================
+  build-and-publish:
+    needs: notify
+    runs-on: ubuntu-latest
+    steps:
+      # --- Standard Checkout (NOT Gerrit checkout) ---
+      # The change is merged — it exists in the branch on the GitHub mirror.
+      # We check out the target branch directly.
+      - name: Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          ref: ${{ inputs.GERRIT_BRANCH }}
+
+      # --- Your post-merge steps go here ---
+      - name: Build and publish
+        run: |
+          echo "Running post-merge job for merged change."
+          echo "Project: ${{ inputs.GERRIT_PROJECT }}"
+          echo "Branch: ${{ inputs.GERRIT_BRANCH }}"
+          echo "Change: ${{ inputs.GERRIT_CHANGE_NUMBER }}"
+          echo "This is where you would publish artifacts, trigger"
+          echo "deployments, update documentation, etc."
+
+  # ==========================================================================
+  # JOB 3: report-status (Comment-Only Result Notification)
+  # ==========================================================================
+  # Report the final outcome back to the merged Gerrit change as a comment.
+  # Again, comment-only: true — no voting on a merged change.
+  # ==========================================================================
+  report-status:
+    if: ${{ always() }}
+    needs: [notify, build-and-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get workflow conclusion
+        # yamllint disable-line rule:line-length
+        uses: im-open/workflow-conclusion@fce18569e28a9f2ed1feca1e6d4251e6a7365fdc  # v2.2.4
+      - name: Report workflow conclusion
+        # yamllint disable-line rule:line-length
+        uses: lfreleng-actions/gerrit-review-action@c9df844dc6efe28b85b297c1c6d40390bfa4a378  # v1.0.0
+        with:
+          host: ${{ vars.GERRIT_SERVER }}
+          username: ${{ vars.GERRIT_SSH_USER }}
+          key: ${{ secrets.GERRIT_SSH_PRIVKEY }}
+          known_hosts: ${{ vars.GERRIT_KNOWN_HOSTS }}
+          gerrit-change-number: ${{ inputs.GERRIT_CHANGE_NUMBER }}
+          gerrit-patchset-number: ${{ inputs.GERRIT_PATCHSET_NUMBER }}
+          vote-type: ${{ env.WORKFLOW_CONCLUSION }}
+          comment-only: "true"

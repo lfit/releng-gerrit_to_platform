@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2025 The Linux Foundation
+
+# =============================================================================
+# EXAMPLE 1: Vanilla GitHub Workflow (No Gerrit Integration)
+# =============================================================================
+# This is a standard GitHub-native workflow with no Gerrit dependencies.
+# It serves as the BASELINE that subsequent examples transform into
+# Gerrit-integrated equivalents.
+#
+# This workflow is triggered by:
+#   - Pull requests (verify on proposed changes)
+#   - Pushes to main (post-merge actions)
+#   - Manual dispatch (on-demand runs from the GitHub UI)
+# =============================================================================
+
+---
+name: Vanilla CI Verify
+
+# yamllint disable-line rule:truthy
+on:
+  # --- TRIGGER: Pull Requests ---
+  # Runs verification when a PR is opened or updated.
+  pull_request:
+    branches:
+      - main
+      - master
+
+  # --- TRIGGER: Push/Merge ---
+  # Runs when code is pushed (merged) into main/master.
+  push:
+    branches:
+      - main
+      - master
+
+  # --- TRIGGER: Manual Dispatch ---
+  # Allows running this workflow on-demand from the GitHub Actions UI.
+  # No inputs are required for a vanilla workflow.
+  workflow_dispatch:
+
+# --- CONCURRENCY GROUP ---
+# Ensures only one run per PR/branch at a time. If a new commit is pushed
+# to the same PR, the previous in-progress run is cancelled automatically.
+# For non-PR events, github.run_id ensures no unintended cancellation.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # ==========================================================================
+  # PRIMARY JOB: build-and-test
+  # ==========================================================================
+  # This is the main verification job. In a real workflow this would contain
+  # your linting, build, test, and audit steps.
+  # ==========================================================================
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # --- Standard GitHub Checkout ---
+      # Uses the standard actions/checkout to clone the repository.
+      # In a pure GitHub workflow this is all you need.
+      - name: Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      # --- Your CI Steps Go Here ---
+      - name: Hello CI!
+        run: |
+          echo "Hello CI! This is a vanilla GitHub workflow."
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "SHA: ${{ github.sha }}"

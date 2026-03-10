@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 ci:
+  skip: [gha-workflow-linter]
   autofix_commit_msg: |
     Chore: pre-commit linting updates
 
@@ -77,6 +78,8 @@ repos:
     hooks:
       - id: write-good
         files: "\\.(rst|md|markdown|mdown|mkdn)$"
+        # yamllint disable-line rule:line-length
+        exclude: "^(README\\.rst|docs/GITHUB_WORKFLOW_INPUT_LIMIT_SOLUTION\\.md)$"
 
   # Replaces: https://github.com/rhysd/actionlint
   # Permits actionlint to run both locally and with precommit.ci/GitHub
@@ -84,3 +87,21 @@ repos:
     rev: f999ae59ac949d9b57aaa5569c2d60eb846b3a00  # frozen: v1.7.7.24
     hooks:
       - id: actionlint
+
+  # LOCAL ONLY: Auto-update actions in examples/workflows to latest SHA pins.
+  # This hook is NOT run by pre-commit.ci (ci: skip) — it requires GitHub
+  # API access (via GitHub CLI or GITHUB_TOKEN) to resolve latest versions.
+  # yamllint disable-line rule:line-length
+  - repo: https://github.com/lfreleng-actions/gha-workflow-linter
+    rev: a7caf8f3a1a05688d1cee46615ff94def617e5a3  # frozen: v1.0.2
+    hooks:
+      - id: gha-workflow-linter
+        name: gha-workflow-linter (examples/workflows)
+        args:
+          - lint
+          - --auto-fix
+          - --auto-latest
+          - examples/workflows
+        # Override default file pattern to target examples directory
+        files: "^examples/workflows/.*\\.ya?ml$"
+        always_run: true

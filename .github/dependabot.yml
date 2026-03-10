@@ -13,6 +13,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/examples/workflows"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
