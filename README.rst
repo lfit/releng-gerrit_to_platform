@@ -224,6 +224,274 @@ the full command line. The workflow then parses the command to determine which
 handler to execute. See ``gerrit-comment-handler.yaml`` for a complete example.
 
 
+Workflow Migration Guide
+========================
+
+This section helps teams migrate from vanilla GitHub workflows (or Jenkins jobs)
+to Gerrit-integrated GitHub Actions workflows. Annotated example workflows are
+provided in the ``examples/workflows/`` directory.
+
+Example Workflows
+-----------------
+
+Four example workflows are provided, progressing from a standard GitHub workflow
+to increasingly Gerrit-integrated patterns:
+
+1. ``examples/workflows/github-vanilla-verify.yaml`` — A pure GitHub workflow
+   with no Gerrit dependencies. Serves as the baseline showing standard
+   ``pull_request``, ``push``, and ``workflow_dispatch`` triggers with
+   ``actions/checkout``.
+
+2. ``examples/workflows/gerrit-verify.yaml`` — The Gerrit-integrated verify
+   equivalent. Demonstrates the clear-vote → build → vote pattern with
+   ``checkout-gerrit-change-action`` and all nine ``GERRIT_*`` inputs.
+
+3. ``examples/workflows/gerrit-merge.yaml`` — The Gerrit-integrated post-merge
+   workflow. Shows comment-only mode (no voting on merged changes), standard
+   ``actions/checkout``, and the replication delay pattern.
+
+4. ``examples/workflows/gerrit-verify-manual-dispatch.yaml`` — A verify
+   workflow that supports both Gerrit dispatch and manual runs from the
+   GitHub Actions UI. Demonstrates optional inputs, conditional Gerrit jobs,
+   and adaptive checkout strategy.
+
+Verify vs. Merge Patterns
+--------------------------
+
+Gerrit workflows fall into two fundamental patterns based on the hook that
+triggers them:
+
+**Verify workflows** (``patchset-created`` hook, search filter: ``verify``):
+
+* Test *unmerged* changes (open Gerrit patchsets)
+* **Must vote** on the change: ``Verified +1`` (success) or ``Verified -1``
+  (failure)
+* Clear any previous vote at the start of the run
+* **Must use** ``checkout-gerrit-change-action`` — the standard
+  ``actions/checkout`` cannot see unmerged Gerrit change refs
+  (e.g., ``refs/changes/40/11540/1``) on the GitHub mirror
+* Job structure: ``clear-vote`` → ``build-and-test`` → ``vote``
+
+**Merge workflows** (``change-merged`` hook, search filter: ``merge``):
+
+* Run *after* a change has been merged into the target branch
+* **Cannot vote** on a merged/closed change — use ``comment-only: "true"``
+  to post status comments instead
+* **Use standard** ``actions/checkout`` — the merged code is already on the
+  branch HEAD in the GitHub mirror
+* Add a replication delay (``sleep 10s``) before checkout to allow the
+  Gerrit replication plugin to sync the merged commit to GitHub
+* Job structure: ``notify`` (comment-only) → ``build-and-publish`` →
+  ``report-status`` (comment-only)
+
+Checkout Rules
+--------------
+
+Choosing the correct checkout action is the single most important difference
+between verify and merge workflows:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 40 40
+
+   * - Workflow Type
+     - Checkout Action
+     - Why
+   * - **Verify**
+     - ``lfit/checkout-gerrit-change-action``
+     - Fetches the unmerged change ref from the Gerrit server (or GitHub mirror
+       if replicated). ``actions/checkout`` will not find these refs.
+   * - **Merge**
+     - ``actions/checkout`` with ``ref: ${{ inputs.GERRIT_BRANCH }}``
+     - The change is already merged into the branch. No special ref fetching
+       is needed. Add a replication delay before checkout.
+   * - **Manual dispatch**
+     - ``actions/checkout`` (no ref override needed)
+     - Checks out the branch selected in the GitHub UI (``github.ref``).
+
+Voting Rules
+------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 20 60
+
+   * - Workflow Type
+     - Voting
+     - Details
+   * - **Verify**
+     - Full voting
+     - ``clear`` at start, ``success``/``failure``/``cancelled`` at end.
+       Uses ``gerrit-review-action`` with ``vote-type``.
+   * - **Merge**
+     - Comment-only
+     - Set ``comment-only: "true"`` on all ``gerrit-review-action`` steps.
+       Attempting to vote on a merged change will fail.
+   * - **Advisory verify**
+     - Comment-only
+     - Non-blocking verify checks can use ``comment-only: "true"`` to post
+       results without affecting the Verified label. Add a ``comment-only``
+       input to toggle this behavior (see production workflow
+       ``gerrit-required-info-yaml-verify.yaml`` for an example).
+
+Concurrency Groups
+------------------
+
+Gerrit workflows should key their concurrency group on ``GERRIT_CHANGE_ID``::
+
+    concurrency:
+      group: ${{ github.event.inputs.GERRIT_CHANGE_ID || github.run_id }}
+      cancel-in-progress: true
+
+This ensures that pushing a new patchset to the same Gerrit change cancels any
+in-progress run for the previous patchset. The ``github.run_id`` fallback
+prevents issues when inputs are absent (e.g., manual dispatch).
+
+Replication Delay
+-----------------
+
+Gerrit-to-GitHub replication is asynchronous. Workflows should include a brief
+sleep (typically 10 seconds) to allow refs to propagate to the GitHub mirror:
+
+* **Verify workflows**: The ``clear-vote`` job includes ``sleep 10s`` after
+  clearing the vote. The build job waits for ``clear-vote`` via ``needs:``,
+  so the delay is naturally incorporated.
+* **Merge workflows**: The ``notify`` job includes ``sleep 10s`` after posting
+  the start comment. This gives the merged commit time to appear on the mirror
+  before the build job runs ``actions/checkout``.
+
+The ``checkout-gerrit-change-action`` also accepts a ``delay`` parameter if
+additional delay is needed, though setting ``delay: "0s"`` is common when the
+replication sleep is handled in a preceding job.
+
+Manual Dispatch Bypass Pattern
+------------------------------
+
+For workflows where running from the GitHub Actions UI is valuable (debugging,
+on-demand checks, advisory scans), the manual dispatch bypass pattern adds:
+
+1. A ``MANUAL_DISPATCH`` boolean input (default: ``false``)
+2. All ``GERRIT_*`` inputs marked ``required: false`` with empty defaults
+3. Conditional ``if:`` guards on Gerrit-specific jobs (``clear-vote``, ``vote``)
+4. Dual checkout steps — one for Gerrit dispatch, one for manual dispatch —
+   with ``if:`` conditions keyed on ``GERRIT_REFSPEC``
+
+When ``gerrit_to_platform`` dispatches the workflow, all inputs are populated
+and ``MANUAL_DISPATCH`` defaults to ``false``, so the workflow behaves
+identically to a standard Gerrit verify. When a developer clicks "Run workflow"
+in the GitHub UI, Gerrit jobs are skipped and standard checkout is used.
+
+See ``examples/workflows/gerrit-verify-manual-dispatch.yaml`` for the complete
+annotated example.
+
+.. note::
+
+   This pattern is best suited for advisory/non-blocking workflows.
+   Required gating workflows should always use the standard verify pattern
+   with ``required: true`` inputs to ensure Gerrit integration is never
+   accidentally bypassed.
+
+Required (Organization-Wide) Workflows
+---------------------------------------
+
+Workflows that must run on *every* repository in the organization are placed in
+the ``ORGANIZATION/.github`` magic repository. These have additional
+requirements:
+
+* The filename must include ``required`` (e.g., ``gerrit-required-verify.yaml``)
+* An extra ``TARGET_REPO`` input is needed so the workflow knows which
+  repository to check out::
+
+      TARGET_REPO:
+        description: 'The target GitHub repository needing the required workflow'
+        required: true
+        type: string
+
+* The ``checkout-gerrit-change-action`` ``repository`` parameter should be set
+  to ``${{ inputs.TARGET_REPO }}``
+
+``workflow_dispatch`` Input Limit
+---------------------------------
+
+GitHub previously enforced a hard limit of **10 inputs** for
+``workflow_dispatch`` events. With 9 standard ``GERRIT_*`` inputs, this left
+only **1 slot** for custom workflow parameters — a significant constraint for
+teams needing additional inputs.
+
+**In December 2025, GitHub increased this limit from 10 to 25 inputs.** This
+change significantly eases the constraint, leaving 16 slots for custom
+parameters alongside the 9 ``GERRIT_*`` inputs. See the `GitHub changelog
+announcement
+<https://github.blog/changelog/2025-12-04-actions-workflow-dispatch-workflows-now-support-25-inputs/>`_
+for details.
+
+For detailed background on this constraint and alternative workarounds (such as
+using ``repository_dispatch`` with unlimited ``client_payload`` fields), see
+``docs/GITHUB_WORKFLOW_INPUT_LIMIT_SOLUTION.md``.
+
+Companion GitHub Actions
+-------------------------
+
+Two GitHub Actions are essential for Gerrit-integrated workflows:
+
+**gerrit-review-action** (``lfreleng-actions/gerrit-review-action``):
+  Posts votes (``Verified +1/-1``) and comments on Gerrit changes via SSH.
+  Supports vote types: ``clear``, ``success``, ``failure``, ``cancelled``.
+  Set ``comment-only: "true"`` for merge workflows or advisory checks.
+
+**checkout-gerrit-change-action** (``lfit/checkout-gerrit-change-action``):
+  Fetches unmerged Gerrit change refs (e.g., ``refs/changes/YY/NNYY/Z``) from
+  the GitHub mirror or falls back to the Gerrit server directly. Required for
+  all verify workflows because ``actions/checkout`` cannot see unmerged refs.
+
+.. note::
+
+   The example workflows reference these actions with ``@main`` for
+   readability. **Production workflows should pin to a specific commit SHA**
+   (e.g., ``@537251ec667665b386f70b330b05446e3fc29087``) for reproducibility
+   and security. See the workflows in ``releng-reusable-workflows`` for
+   real-world pinned examples.
+
+Quick Reference: Vanilla → Gerrit Migration Checklist
+------------------------------------------------------
+
+When converting a standard GitHub workflow to a Gerrit-integrated one:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 5 45 50
+
+   * - #
+     - Task
+     - Notes
+   * - 1
+     - Replace triggers with ``workflow_dispatch`` + 9 ``GERRIT_*`` inputs
+     - Remove ``pull_request``, ``push`` triggers entirely
+   * - 2
+     - Set concurrency group to ``GERRIT_CHANGE_ID``
+     - Replaces ``github.head_ref`` or branch-based grouping
+   * - 3
+     - Add ``clear-vote`` job at the start (verify only)
+     - Resets previous ``Verified`` votes; includes replication sleep
+   * - 4
+     - Replace ``actions/checkout`` (verify only)
+     - Use ``checkout-gerrit-change-action`` with ``gerrit-refspec``,
+       ``gerrit-project``, ``gerrit-url``, and ``ref``
+   * - 5
+     - Add ``vote`` job at the end (verify only)
+     - Must use ``if: ${{ always() }}`` to report even on failure
+   * - 6
+     - For merge workflows, use ``comment-only: "true"``
+     - Keep ``actions/checkout`` but add replication sleep before it
+   * - 7
+     - Name the file correctly
+     - Must contain ``gerrit`` and the search filter (``verify`` or ``merge``)
+   * - 8
+     - Configure repository variables and secrets
+     - ``GERRIT_SERVER``, ``GERRIT_SSH_USER``, ``GERRIT_SSH_PRIVKEY``,
+       ``GERRIT_KNOWN_HOSTS``, ``GERRIT_URL``
+
+
 Making Changes & Contributing
 =============================
 
