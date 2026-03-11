@@ -13,9 +13,9 @@ import os
 import re
 import time
 from pathlib import Path
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from gerrit_to_platform.config import get_mapping
 from gerrit_to_platform.helpers import (
