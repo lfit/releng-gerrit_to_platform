@@ -4,7 +4,7 @@ name = "gerrit-to-platform"
 dynamic = ["version"]
 description = "Gerrit to GitHub / GitLab"
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE.txt"}
 
 authors = [
@@ -27,7 +27,7 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Build Tools",
@@ -38,7 +38,7 @@ classifiers = [
 
 dependencies = [
     "ghapi~=1.0.3",
-    "typer[all]>=0.15,<0.22",
+    "typer>=0.15",
     "xdg~=5.1.1"
 ]
 

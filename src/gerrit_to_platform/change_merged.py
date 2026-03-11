@@ -9,8 +9,9 @@
 ##############################################################################
 """Handler for patchset-created events."""
 
+from typing import Annotated
+
 import typer
-from typing_extensions import Annotated
 
 from gerrit_to_platform.helpers import (
     find_and_dispatch,
