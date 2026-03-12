@@ -38,6 +38,7 @@ classifiers = [
 
 dependencies = [
     "ghapi~=1.0.3",
+    "pygerrit2~=2.0",
     "typer>=0.15",
     "xdg~=5.1.1"
 ]

@@ -73,6 +73,9 @@ The ``gerrit_to_platform.ini`` file has the following format::
     [gitlab.com]
     token = <a_token_that_allows_triggering_workflows>
 
+    [parrotbot]
+    enabled = true
+
 
 The ``content-added`` mapping section is a key value pair for comment triggers
 to the corresponding workflow name or filename
@@ -489,6 +492,72 @@ When converting a standard GitHub workflow to a Gerrit-integrated one:
      - Configure repository variables and secrets
      - ``GERRIT_SERVER``, ``GERRIT_SSH_USER``, ``GERRIT_SSH_PRIVKEY``,
        ``GERRIT_KNOWN_HOSTS``, ``GERRIT_URL``
+
+
+Parrotbot — Dependabot Command Relay
+=====================================
+
+Parrotbot allows Gerrit committers to issue commands to GitHub bots (such as
+Dependabot) directly from Gerrit comments. This is necessary because GitHub
+mirrors of Gerrit repositories function as non-writable replicas, and project committers
+lack the GitHub admin/push permissions to interact with bots like
+Dependabot.
+
+When a committer posts a parrotbot command on a Gerrit change, the bot verifies
+the user is a member of the project's committer (owner) group and then posts the
+corresponding ``@dependabot`` (or other bot) comment on the linked GitHub
+pull request.
+
+**Enabling Parrotbot**
+
+Add the following to ``gerrit_to_platform.ini``::
+
+    [parrotbot]
+    enabled = true
+
+Parrotbot reuses the ``[github.com] token`` already configured for workflow
+dispatch. The token must have permission to post comments on pull requests in
+the target GitHub organisation.
+
+**Usage**
+
+Add a comment to any Gerrit change using one of these patterns::
+
+    @parrot @dependabot <command>
+    @parrotbot @dependabot <command>
+
+Supported commands:
+
+* ``recreate`` — Close and recreate the PR from scratch
+* ``rebase`` — Rebase the PR onto the latest base branch
+* ``merge`` — Merge the PR (if auto-merge conditions pass)
+* ``squash`` — Squash and merge the PR
+* ``close`` — Close the PR without merging
+* ``reopen`` — Reopen a closed PR
+
+**Examples**::
+
+    @parrot @dependabot recreate
+    @parrotbot @dependabot rebase
+
+**How It Works**
+
+1. The ``comment-added`` hook checks incoming comments for parrotbot commands
+2. The commenter's membership in the project's committer group undergoes
+   verification via the Gerrit REST API
+3. The linked GitHub pull request gets matched from the Gerrit change's
+   topic or commit message to an open PR
+4. The bot posts the command as a comment (e.g. ``@dependabot recreate``) on the
+   GitHub PR using the configured token
+5. A confirmation or error reply gets posted back to the Gerrit change
+
+**Troubleshooting**
+
+* Ensure ``[parrotbot] enabled = true`` appears in the configuration
+* The commenter must be a member of the project's committer (owner) group
+* The GitHub token must have ``issues:write`` or ``pull_requests:write`` scope
+* The Gerrit change must link to a GitHub PR (via topic or change metadata)
+* The bot accepts the commands listed above; it ignores unrecognised commands
 
 
 Making Changes & Contributing
