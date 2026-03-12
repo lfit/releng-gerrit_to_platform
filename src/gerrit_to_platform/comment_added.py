@@ -24,6 +24,7 @@ from gerrit_to_platform.helpers import (
     get_change_number,
     get_change_refspec,
 )
+from gerrit_to_platform.parrotbot import handle_parrot_command, is_parrot_command
 
 app = typer.Typer()
 
@@ -174,6 +175,17 @@ def comment_added(
     """
     change_id = get_change_id(change)
     change_number = get_change_number(change_url)
+
+    # Check for parrotbot commands before processing regular workflow dispatch
+    if is_parrot_command(comment):
+        handle_parrot_command(
+            comment=comment,
+            change_number=change_number,
+            change_url=change_url,
+            author_username=author_username,
+            project=project,
+        )
+        return
 
     patchset_regex = r"^Patch Set (\d+):"
     patchset = re.findall(patchset_regex, comment)[0]
