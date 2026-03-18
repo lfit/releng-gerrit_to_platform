@@ -39,7 +39,7 @@ classifiers = [
 dependencies = [
     "ghapi~=1.0.3",
     "typer>=0.15",
-    "xdg~=5.1.1"
+    "xdg>=5.1.1,<6.1.0"
 ]
 
 [project.optional-dependencies]
