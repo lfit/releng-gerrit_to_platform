@@ -72,7 +72,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/checkout-gerrit-change-action@0768d4c4e63940c6198dfb222f9c271d1f72fc18  # v1.0.0
+        uses: lfreleng-actions/checkout-gerrit-change-action@a42e7b28e20da2644d2c5d90f1294d0634a71d9c  # v1.0.0
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
@@ -92,7 +92,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/checkout-gerrit-change-action@0768d4c4e63940c6198dfb222f9c271d1f72fc18  # v1.0.0
+        uses: lfreleng-actions/checkout-gerrit-change-action@a42e7b28e20da2644d2c5d90f1294d0634a71d9c  # v1.0.0
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
@@ -112,7 +112,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/checkout-gerrit-change-action@0768d4c4e63940c6198dfb222f9c271d1f72fc18  # v1.0.0
+        uses: lfreleng-actions/checkout-gerrit-change-action@a42e7b28e20da2644d2c5d90f1294d0634a71d9c  # v1.0.0
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
       - name: Configure Python
@@ -148,7 +148,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/checkout-gerrit-change-action@0768d4c4e63940c6198dfb222f9c271d1f72fc18  # v1.0.0
+        uses: lfreleng-actions/checkout-gerrit-change-action@a42e7b28e20da2644d2c5d90f1294d0634a71d9c  # v1.0.0
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
@@ -189,7 +189,7 @@ jobs:
     steps:
       - name: Checkout change
         # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/checkout-gerrit-change-action@0768d4c4e63940c6198dfb222f9c271d1f72fc18  # v1.0.0
+        uses: lfreleng-actions/checkout-gerrit-change-action@a42e7b28e20da2644d2c5d90f1294d0634a71d9c  # v1.0.0
         with:
           gerrit-refspec: ${{ inputs.GERRIT_REFSPEC }}
           delay: "0s"
