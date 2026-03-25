@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8674717a_781fda88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2026-03-25T23:51:08Z",
+      "side": 1,
+      "message": "I\u0027m not seeing authorization validation for parrot events even though the workflow docs state that there is a check",
+      "revId": "4d4561f5e8dbda479abbbb88a94450e9e9587771",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
