@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2afd8950_192ac509",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2026-03-25T13:29:47Z",
+      "side": 1,
+      "message": "I would like to see a reno note given that this project still uses reno. That will give changelog for the RTD site.",
+      "revId": "55641201b05b53926d9383b2c5fb09d961bff045",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    }
+  ]
+}
