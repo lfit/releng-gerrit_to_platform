@@ -16,6 +16,24 @@
       "message": "I would like to see a reno note given that this project still uses reno. That will give changelog for the RTD site.",
       "revId": "55641201b05b53926d9383b2c5fb09d961bff045",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b8dd80c_59ea5f50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 605
+      },
+      "writtenOn": "2026-03-25T16:33:15Z",
+      "side": 1,
+      "message": "Update with missing Reno release note.",
+      "parentUuid": "2afd8950_192ac509",
+      "revId": "55641201b05b53926d9383b2c5fb09d961bff045",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     }
   ]
 }
