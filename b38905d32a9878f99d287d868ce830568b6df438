@@ -16,6 +16,24 @@
       "message": "This is always going to fail as pygerrit2 is not part of the dependencies in pyproject.toml. For this to work, add it as a dependency and then remove the try block as it will then be part of the required dependencies and it will be an unneeded bit of defensive programming. The pygerrit2 import should also move to the top level of the module instead of being inside a function.",
       "revId": "b38905d32a9878f99d287d868ce830568b6df438",
       "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79f493f5_31923abc",
+        "filename": "src/gerrit_to_platform/parrotbot.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 29
+      },
+      "writtenOn": "2026-03-28T07:04:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4f2175c_fef22ad2",
+      "revId": "b38905d32a9878f99d287d868ce830568b6df438",
+      "serverId": "f2a2391d-0403-4fa5-b183-4056999a8a09"
     }
   ]
 }
