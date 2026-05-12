@@ -32,6 +32,9 @@ FIXTURE_DIR = os.path.join(
 
 TEST_CONFIG = os.path.join(FIXTURE_DIR, "testconfig.ini")
 REPLICATION_CONFIG = os.path.join(FIXTURE_DIR, "replication.config")
+REPLICATION_MULTI_FETCH_CONFIG = os.path.join(
+    FIXTURE_DIR, "replication_multi_fetch.config"
+)
 
 MOCK_CONFIG_FILES = {
     CONFIG: TEST_CONFIG,
@@ -48,6 +51,56 @@ def test_get_config(mocker):
     )
     assert get_config().has_section("github.com")
     assert get_config(REPLICATION).has_section('remote "github"')
+
+
+def test_get_config_tolerates_duplicate_keys(mocker):
+    """Multi-valued ``fetch`` refspecs in replication.config must parse.
+
+    Gerrit's pull-replication plugin writes multiple ``fetch = ...``
+    lines under a single ``[remote "..."]`` section (valid git config
+    syntax for representing a list).  Python's ``configparser`` defaults
+    to ``strict=True`` and raises ``DuplicateOptionError`` for that
+    pattern, which previously crashed every g2p hook the moment
+    ``find_and_dispatch`` called ``get_replication_remotes()``.  This
+    test loads such a config and asserts it parses without raising.
+    """
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "CONFIG_FILES",
+        {
+            CONFIG: TEST_CONFIG,
+            REPLICATION: REPLICATION_MULTI_FETCH_CONFIG,
+        },
+    )
+    config = get_config(REPLICATION)
+    assert config.has_section('remote "onap"')
+    # ``strict=False`` keeps the last value when keys repeat; verify
+    # the URL field (which is single-valued) survives intact, and the
+    # multi-valued ``fetch`` field at least returns a string rather
+    # than raising.
+    assert config.get('remote "onap"', "url") == (
+        "https://gerrit.onap.org/r/a/${name}.git"
+    )
+    assert config.has_option('remote "onap"', "fetch")
+
+
+def test_get_replication_remotes_tolerates_duplicate_keys(mocker):
+    """``get_replication_remotes`` must succeed against a multi-fetch
+    replication.config (regression for the field-observed crash).
+    """
+    mocker.patch.object(
+        gerrit_to_platform.config,
+        "CONFIG_FILES",
+        {
+            CONFIG: TEST_CONFIG,
+            REPLICATION: REPLICATION_MULTI_FETCH_CONFIG,
+        },
+    )
+    remotes = get_replication_remotes()
+    assert "github" in remotes
+    assert "github-g2p" in remotes["github"]
+    assert remotes["github"]["github-g2p"]["owner"] == ("modeseven-gerrit-onap")
+    assert remotes["github"]["github-g2p"]["remotenamestyle"] == "dash"
 
 
 def test_get_mapping(mocker):
