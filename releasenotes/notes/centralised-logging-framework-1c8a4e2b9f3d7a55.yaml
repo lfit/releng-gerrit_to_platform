@@ -1,0 +1,39 @@
+---
+features:
+  - |
+    Added a centralised, opt-in logging framework
+    (``gerrit_to_platform._logging``) that operators can configure
+    via ``G2P_LOG_*`` environment variables or a new ``[logging]``
+    section in ``gerrit_to_platform.ini``.  Default behaviour is
+    unchanged (``WARNING`` to stderr).
+  - |
+    Logging supports a human-readable text format and a one-object-
+    per-line JSON format (``schema_version`` ``"1"``) suitable for
+    aggregation in Loki / ELK / GitHub Actions log artefacts.
+  - |
+    Each hook invocation carries a short correlation id, attached to
+    every log line as ``cid=…``.  The id can be inherited from a
+    parent process (e.g. the ``gerrit-action`` hook wrapper) by
+    setting ``correlation_id_env`` to the relevant env-var name.
+  - |
+    Hook entry-points (``patchset-created``, ``comment-added``,
+    ``change-merged``) and the ``find_and_dispatch`` lifecycle now
+    emit structured ``hook=…``, ``platform detected``,
+    ``workflow lookup``, ``dispatch attempt``,
+    ``dispatch success/failure`` and ``hook=… exit elapsed_ms=…``
+    lines so operators can diagnose ephemeral container deployments
+    (Docker, GitHub-CI sandboxes) without source access.
+  - |
+    The GitHub client wrapper logs every workflow dispatch and
+    workflows-list call with timing, owner/repo and outcome.
+  - |
+    A ``RedactingFilter`` is attached to every handler installed by
+    ``configure()`` and scrubs GitHub token shapes, ``Authorization``
+    headers, ``token=`` query-string parameters and labelled
+    ``token=``/``secret=``/``password=`` values from log records
+    before any handler sees them.
+upgrade:
+  - |
+    No action is required for existing deployments: the framework is
+    backwards-compatible at default verbosity.  See ``docs/LOGGING.md``
+    for the new operator-facing configuration surface.

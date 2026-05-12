@@ -9,10 +9,14 @@
 ##############################################################################
 """Handler for patchset-created events."""
 
+import sys
+import time
 from typing import Annotated
 
 import typer
 
+from gerrit_to_platform._logging import configure as _configure_logging
+from gerrit_to_platform._logging import get_logger
 from gerrit_to_platform.helpers import (
     find_and_dispatch,
     get_change_id,
@@ -21,6 +25,7 @@ from gerrit_to_platform.helpers import (
 )
 
 app = typer.Typer()
+log = get_logger(__name__)
 
 
 @app.command()
@@ -56,9 +61,26 @@ def patchset_created(
         patchset (str): patchset number
     """
 
+    _configure_logging()
+    started = time.monotonic()
+    log.info(
+        "hook=patchset-created project=%s branch=%s patchset=%s argv_count=%d",
+        project,
+        branch,
+        patchset,
+        len(sys.argv),
+    )
+
     change_id = get_change_id(change)
     change_number = get_change_number(change_url)
     refspec = get_change_refspec(change_number, patchset)
+    log.debug(
+        "event parsed change_number=%s change_id=%s refspec=%s commit=%s",
+        change_number,
+        change_id,
+        refspec,
+        commit,
+    )
 
     inputs = {
         "GERRIT_BRANCH": branch,
@@ -72,7 +94,28 @@ def patchset_created(
         "GERRIT_REFSPEC": refspec,
     }
 
-    find_and_dispatch(project, "verify", inputs)
+    try:
+        dispatched = find_and_dispatch(project, "verify", inputs)
+        log.info(
+            "hook=patchset-created dispatched=%d project=%s " "change_number=%s",
+            dispatched,
+            project,
+            change_number,
+        )
+    except Exception:
+        log.exception(
+            "unhandled error during dispatch for change_number=%s",
+            change_number,
+        )
+        raise
+    finally:
+        elapsed_ms = int((time.monotonic() - started) * 1000)
+        log.info(
+            "hook=patchset-created exit project=%s change_number=%s " "elapsed_ms=%d",
+            project,
+            change_number,
+            elapsed_ms,
+        )
 
 
 if __name__ == "__main__":
