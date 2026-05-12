@@ -13,6 +13,8 @@ import json
 import os
 from typing import Any, Callable, Dict, List, Union
 
+import pytest
+
 import gerrit_to_platform.github as github  # type: ignore
 import gerrit_to_platform.helpers  # type: ignore
 from gerrit_to_platform.config import Platform  # type: ignore
@@ -217,11 +219,37 @@ def test_find_and_dispatch(mocker, capfd):
     assert actual == ""
 
 
-def test_get_change_id(mocker):
-    """Test get_change_id"""
-    expected = "Ibaz"
-    actual = get_change_id("foo~bar~Ibaz")
-    assert expected == actual
+def test_get_change_id_legacy_triplet():
+    """Legacy ``project~branch~Iabc...`` form returns the I... footer."""
+    assert get_change_id("foo~bar~Ibaz") == "Ibaz"
+
+
+def test_get_change_id_legacy_full_change_id():
+    """A real-world legacy triplet returns the full Change-Id."""
+    triplet = "ccsdk%2Fapps~master~" "I260d518121dd9114b83f44f1036a560f83c92475"
+    assert get_change_id(triplet) == ("I260d518121dd9114b83f44f1036a560f83c92475")
+
+
+def test_get_change_id_compact_modern():
+    """Gerrit 3.x compact ``project~number`` form returned verbatim."""
+    assert get_change_id("ccsdk%2Fapps~1") == "ccsdk%2Fapps~1"
+
+
+def test_get_change_id_compact_unencoded_project():
+    """Compact form also accepts non-URL-encoded simple project names."""
+    assert get_change_id("my-project~42") == "my-project~42"
+
+
+def test_get_change_id_invalid_input_raises_value_error():
+    """An unrecognised shape raises ValueError, not IndexError."""
+    with pytest.raises(ValueError, match="Unrecognised Gerrit"):
+        get_change_id("not-a-valid-change-id")
+
+
+def test_get_change_id_two_field_non_numeric_raises():
+    """``project~not-a-number`` is rejected (compact form needs digits)."""
+    with pytest.raises(ValueError, match="Unrecognised Gerrit"):
+        get_change_id("foo~bar")
 
 
 def test_get_change_number(mocker):

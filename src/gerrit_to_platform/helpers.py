@@ -297,18 +297,67 @@ def find_and_dispatch(
     return dispatched_count
 
 
+# Gerrit hook ``--change`` argument shapes.
+#
+# Legacy triplet ID, present in older Gerrit releases and still emitted
+# by some configurations:
+#     project~branch~Iabc123def...
+# The third tilde-separated field is the commit-message Change-Id
+# footer (always starts with ``I``).
+_LEGACY_CHANGE_ID_RE = re.compile(r"^[^~]+~[^~]+~(I[A-Za-z0-9]+)$")
+
+# Modern compact ID, introduced in Gerrit 3.x and now the default
+# value passed to hook scripts:
+#     <URL-encoded project>~<change_number>
+# e.g. ``ccsdk%2Fapps~1``.  This shape does not carry the
+# commit-message Change-Id footer, only the project + numeric id, but
+# it is still a unique, stable identifier for the change.
+_COMPACT_CHANGE_ID_RE = re.compile(r"^[^~]+~\d+$")
+
+
 def get_change_id(change: str) -> str:
     """
-    Get the Gerrit change_id from an hook event.
+    Return a Gerrit change identifier from the hook ``--change`` value.
+
+    Gerrit hooks pass ``--change`` in one of two shapes depending on
+    the server version and configuration:
+
+    * **Legacy triplet** (e.g. ``project~branch~Iabc123def...``).  The
+      third tilde-separated field is the commit-message ``Change-Id``
+      footer.  When this shape is detected the function returns that
+      ``I...`` value, preserving the previous behaviour.
+
+    * **Modern compact** (Gerrit 3.x and later, e.g. ``ccsdk%2Fapps~1``
+      — URL-encoded project followed by the change number).  Gerrit
+      no longer ships the commit-message ``Change-Id`` footer in the
+      hook argv for this shape, so the function returns the compact
+      id as-is.  It is still a unique, stable identifier per change
+      and works as a ``GERRIT_CHANGE_ID`` workflow input (e.g. for
+      concurrency keys).
 
     Args:
-        change (str): the change string passed to event handlers
+        change (str): the ``--change`` value supplied by the Gerrit
+            hook plugin.
 
     Returns:
-        str: The extracted Gerrit change_id from the event hook
+        str: The legacy ``I...`` Change-Id when present, otherwise the
+        modern compact ``project~number`` identifier verbatim.
+
+    Raises:
+        ValueError: if ``change`` matches neither shape.  The previous
+            implementation raised ``IndexError`` here, which made
+            triage harder for operators inspecting hook tracebacks.
     """
-    change_id_regex = r".*~.*~(I.*)"
-    return re.findall(change_id_regex, change)[0]
+    legacy_match = _LEGACY_CHANGE_ID_RE.fullmatch(change)
+    if legacy_match:
+        return legacy_match.group(1)
+    if _COMPACT_CHANGE_ID_RE.fullmatch(change):
+        return change
+    raise ValueError(
+        f"Unrecognised Gerrit --change argument: {change!r}; expected "
+        "either 'project~branch~Iabc123' (legacy triplet) or "
+        "'project~changeNumber' (Gerrit 3.x compact form)."
+    )
 
 
 def get_change_number(change_url: str) -> str:
