@@ -74,8 +74,23 @@ def get_config(config_type: str = DEFAULT_CONFIG) -> ConfigParser:
     Returns:
         ConfigParser: A loaded ConfigParser object with the requested
             configuration file
+
+    Notes:
+        ``replication.config`` follows git's config-file syntax, which
+        permits the same option key to repeat inside a section (the
+        canonical example is multiple ``fetch = ...`` refspecs under
+        one ``[remote "..."]``).  Python's ``configparser`` raises
+        ``DuplicateOptionError`` for that pattern unless ``strict`` is
+        false, so we disable the strict check here.  ``g2p`` only
+        reads ``url``, ``authgroup`` and ``remotenamestyle`` from the
+        remote sections, never the multi-valued ``fetch`` key, so the
+        "last value wins" semantics that ``strict=False`` introduces
+        for duplicates have no functional impact.  The same parser is
+        used for ``gerrit_to_platform.ini`` for consistency; that
+        file is operator-controlled and does not contain duplicate
+        keys in practice.
     """
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(strict=False)
     conf_file = CONFIG_FILES[config_type]
     with open(conf_file) as config_file:
         config.read_file(config_file, conf_file)

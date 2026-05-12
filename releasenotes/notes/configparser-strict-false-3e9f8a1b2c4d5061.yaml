@@ -1,0 +1,25 @@
+---
+fixes:
+  - |
+    Fix ``configparser.DuplicateOptionError`` raised from every hook
+    invocation when ``replication.config`` contains multi-valued
+    ``fetch = ...`` refspecs under a single ``[remote "..."]`` section.
+    This is the canonical shape Gerrit's pull-replication plugin
+    writes (and is valid git-config syntax for representing a list),
+    but Python's ``configparser`` defaults to ``strict=True`` and
+    refuses to parse repeated keys.  ``get_config()`` now constructs
+    the parser with ``strict=False``, which allows the multi-valued
+    keys through with "last value wins" semantics.  ``g2p`` only
+    reads the single-valued ``url``, ``authgroup`` and
+    ``remotenamestyle`` keys from the remote sections, never the
+    multi-valued ``fetch`` key, so the relaxed semantics have no
+    functional impact.
+upgrade:
+  - |
+    No operator action required.  Existing deployments that did not
+    trigger this crash (because their ``replication.config`` happened
+    to keep ``fetch`` to a single line per remote) see no behaviour
+    change.  Deployments that did crash after every hook event —
+    notably any pull-replication setup mirrored from a Gerrit source
+    — will start dispatching workflows successfully after this
+    release.
