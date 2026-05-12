@@ -1,0 +1,29 @@
+---
+fixes:
+  - |
+    Fix ``IndexError: list index out of range`` raised from every hook
+    invocation against Gerrit 3.x servers that pass the modern compact
+    ``--change`` argument (``<URL-encoded project>~<number>``, e.g.
+    ``ccsdk%2Fapps~1``).  The previous ``get_change_id`` implementation
+    only matched the legacy triplet form
+    (``project~branch~Iabc123...``) and crashed for anything else,
+    dropping every ``patchset-created``, ``comment-added`` and
+    ``change-merged`` event before workflow dispatch could run.
+  - |
+    ``get_change_id`` now returns the legacy ``I...`` Change-Id when
+    the legacy triplet form is supplied, and returns the modern
+    compact ``project~number`` identifier verbatim otherwise.  The
+    compact form is still a unique, stable identifier per change and
+    works as a ``GERRIT_CHANGE_ID`` workflow input (e.g. for
+    ``concurrency.group`` keys).
+upgrade:
+  - |
+    Behaviour for Gerrit servers that emit the legacy triplet shape is
+    unchanged.  Servers that emit the modern compact shape (Gerrit 3.x
+    and later, or any older server configured to use the new shape)
+    will start successfully dispatching workflows after this release;
+    no operator action is required.
+  - |
+    ``get_change_id`` now raises ``ValueError`` instead of
+    ``IndexError`` for unrecognised input, which makes triage easier
+    when inspecting hook tracebacks.
