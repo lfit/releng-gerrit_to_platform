@@ -10,14 +10,18 @@
 """Common helper functions."""
 
 import re
+import time
 from typing import Callable, Dict, Optional, Union
 
 import gerrit_to_platform.github as github
+from gerrit_to_platform._logging import get_logger
 from gerrit_to_platform.config import (
     Platform,
     ReplicationRemotes,
     get_replication_remotes,
 )
+
+log = get_logger(__name__)
 
 
 def choose_dispatch(platform: Platform) -> Union[Callable, None]:
@@ -109,6 +113,12 @@ def find_and_dispatch(
     """
     remotes = get_replication_remotes()
     dispatched_count = 0
+    log.debug(
+        "find_and_dispatch project=%s filter=%s remotes_platforms=%s",
+        project,
+        workflow_filter,
+        sorted(remotes.keys()),
+    )
 
     for platform in Platform:
         if platform.value not in remotes:
@@ -118,20 +128,65 @@ def find_and_dispatch(
         filter_workflows = choose_filter_workflows(platform)
 
         if dispatcher is None or filter_workflows is None:
+            log.debug(
+                "platform=%s has no dispatcher/filter; skipping",
+                platform.value,
+            )
             continue
 
         for remote in remotes[platform.value]:
             owner = remotes[platform.value][remote]["owner"]
             repo = convert_repo_name(remotes, platform, remote, project)
+            log.info(
+                "platform detected platform=%s remote=%s owner=%s repo=%s "
+                "project=%s",
+                platform.value,
+                remote,
+                owner,
+                repo,
+                project,
+            )
             workflows = filter_workflows(owner, repo, workflow_filter)
+            log.info(
+                "workflow lookup platform=%s owner=%s repo=%s filter=%s "
+                "candidates=%d",
+                platform.value,
+                owner,
+                repo,
+                workflow_filter,
+                len(workflows),
+            )
+            if not workflows:
+                log.info(
+                    "no workflow matched filter=%s on %s/%s",
+                    workflow_filter,
+                    owner,
+                    repo,
+                )
 
             for workflow in workflows:
+                # User-facing confirmation kept on stdout; the structured
+                # log line below is the machine-readable counterpart.
                 print(
                     f"Dispatching workflow '{workflow['name']}', "
                     + f"id {workflow['id']} on "
                     + f"{platform.value}:{owner}/{repo} for change "
                     + f"{inputs['GERRIT_CHANGE_NUMBER']} patch "
                     + inputs["GERRIT_PATCHSET_NUMBER"]
+                )
+                started = time.monotonic()
+                log.info(
+                    "dispatch attempt platform=%s owner=%s repo=%s "
+                    "workflow=%s workflow_id=%s change_number=%s patchset=%s "
+                    "input_keys=%d",
+                    platform.value,
+                    owner,
+                    repo,
+                    workflow["name"],
+                    workflow["id"],
+                    inputs["GERRIT_CHANGE_NUMBER"],
+                    inputs["GERRIT_PATCHSET_NUMBER"],
+                    len(inputs),
                 )
                 try:
                     dispatcher(
@@ -142,13 +197,41 @@ def find_and_dispatch(
                         inputs,
                     )
                     dispatched_count += 1
+                    log.info(
+                        "dispatch success platform=%s owner=%s repo=%s "
+                        "workflow=%s elapsed_ms=%d",
+                        platform.value,
+                        owner,
+                        repo,
+                        workflow["name"],
+                        int((time.monotonic() - started) * 1000),
+                    )
                 except Exception as e:
                     print(f"Failed to dispatch workflow: {e}")
+                    log.exception(
+                        "dispatch failure platform=%s owner=%s repo=%s "
+                        "workflow=%s elapsed_ms=%d: %s",
+                        platform.value,
+                        owner,
+                        repo,
+                        workflow["name"],
+                        int((time.monotonic() - started) * 1000),
+                        e,
+                    )
 
             magic_repo = get_magic_repo(platform)
             if magic_repo:
                 required_workflows = filter_workflows(
                     owner, magic_repo, workflow_filter, True
+                )
+                log.debug(
+                    "required workflows lookup platform=%s owner=%s "
+                    "magic_repo=%s filter=%s candidates=%d",
+                    platform.value,
+                    owner,
+                    magic_repo,
+                    workflow_filter,
+                    len(required_workflows),
                 )
 
                 inputs["TARGET_REPO"] = f"{owner}/{repo}"
@@ -162,6 +245,17 @@ def find_and_dispatch(
                         + f"{inputs['GERRIT_PATCHSET_NUMBER']} against "
                         + f"{platform.value}:{owner}/{repo}"
                     )
+                    started = time.monotonic()
+                    log.info(
+                        "required dispatch attempt platform=%s owner=%s "
+                        "magic_repo=%s target=%s/%s workflow=%s",
+                        platform.value,
+                        owner,
+                        magic_repo,
+                        owner,
+                        repo,
+                        workflow["name"],
+                    )
                     try:
                         dispatcher(
                             owner,
@@ -171,9 +265,35 @@ def find_and_dispatch(
                             inputs,
                         )
                         dispatched_count += 1
+                        log.info(
+                            "required dispatch success platform=%s owner=%s "
+                            "magic_repo=%s workflow=%s elapsed_ms=%d",
+                            platform.value,
+                            owner,
+                            magic_repo,
+                            workflow["name"],
+                            int((time.monotonic() - started) * 1000),
+                        )
                     except Exception as e:
                         print(f"Failed to dispatch workflow: {e}")
+                        log.exception(
+                            "required dispatch failure platform=%s "
+                            "owner=%s magic_repo=%s workflow=%s "
+                            "elapsed_ms=%d: %s",
+                            platform.value,
+                            owner,
+                            magic_repo,
+                            workflow["name"],
+                            int((time.monotonic() - started) * 1000),
+                            e,
+                        )
 
+    log.info(
+        "find_and_dispatch finished project=%s filter=%s dispatched=%d",
+        project,
+        workflow_filter,
+        dispatched_count,
+    )
     return dispatched_count
 
 

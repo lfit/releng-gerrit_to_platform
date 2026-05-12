@@ -9,12 +9,17 @@
 ##############################################################################
 """Github connection module."""
 
+import time
 from typing import Any, Dict, List
 
 from fastcore.net import HTTP404NotFoundError  # type: ignore
 from ghapi.all import GhApi  # type: ignore
 
+from gerrit_to_platform._logging import get_logger
 from gerrit_to_platform.config import get_setting
+
+log = get_logger(__name__)
+_dispatch_log = get_logger(__name__ + ".dispatch")
 
 
 def dispatch_workflow(
@@ -34,9 +39,40 @@ def dispatch_workflow(
     github_token = get_setting("github.com", "token")
     api = GhApi(token=github_token)
 
-    return api.actions.create_workflow_dispatch(
-        owner, repository, workflow_id, ref, inputs
+    _dispatch_log.debug(
+        "POST /repos/%s/%s/actions/workflows/%s/dispatches ref=%s inputs=%d",
+        owner,
+        repository,
+        workflow_id,
+        ref,
+        len(inputs),
     )
+    started = time.monotonic()
+    try:
+        response = api.actions.create_workflow_dispatch(
+            owner, repository, workflow_id, ref, inputs
+        )
+    except Exception as exc:
+        _dispatch_log.error(
+            "workflow dispatch failed owner=%s repo=%s workflow_id=%s "
+            "ref=%s elapsed_ms=%d error=%s",
+            owner,
+            repository,
+            workflow_id,
+            ref,
+            int((time.monotonic() - started) * 1000),
+            exc,
+        )
+        raise
+    _dispatch_log.info(
+        "workflow dispatch ok owner=%s repo=%s workflow_id=%s ref=%s " "elapsed_ms=%d",
+        owner,
+        repository,
+        workflow_id,
+        ref,
+        int((time.monotonic() - started) * 1000),
+    )
+    return response
 
 
 def filter_path(search_filter: str, workflow: Dict[str, str]) -> bool:
@@ -128,10 +164,25 @@ def get_workflows(owner: str, repository: str) -> List[Dict[str, str]]:
     github_token = get_setting("github.com", "token")
     api = GhApi(token=github_token)
 
+    log.debug("GET /repos/%s/%s/actions/workflows", owner, repository)
+    started = time.monotonic()
     try:
         workflows = api.actions.list_repo_workflows(owner, repository)["workflows"]
     except HTTP404NotFoundError:
+        log.warning(
+            "workflows list returned 404 owner=%s repo=%s elapsed_ms=%d",
+            owner,
+            repository,
+            int((time.monotonic() - started) * 1000),
+        )
         return []
+    log.info(
+        "workflows list ok owner=%s repo=%s count=%d elapsed_ms=%d",
+        owner,
+        repository,
+        len(workflows),
+        int((time.monotonic() - started) * 1000),
+    )
 
     workflows = [workflow for workflow in workflows if workflow["state"] == "active"]
     key_ids = [

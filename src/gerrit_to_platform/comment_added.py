@@ -7,16 +7,19 @@
 # distribution, and is available at
 # https://opensource.org/licenses/Apache-2.0
 ##############################################################################
-"""Handler for patchset-created events."""
+"""Handler for comment-added events."""
 
 import os
 import re
+import sys
 import time
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
+from gerrit_to_platform._logging import configure as _configure_logging
+from gerrit_to_platform._logging import get_logger
 from gerrit_to_platform.config import get_mapping
 from gerrit_to_platform.helpers import (
     find_and_dispatch,
@@ -26,6 +29,7 @@ from gerrit_to_platform.helpers import (
 )
 
 app = typer.Typer()
+log = get_logger(__name__)
 
 # Cooldown period in seconds (5 minutes)
 COOLDOWN_SECONDS = 300
@@ -50,12 +54,12 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
     """
     # Issue 1 Fix: Input validation to prevent path injection (CWE-22)
     if not change_number.isdigit():
-        print(f"Invalid change number: {change_number}")
+        log.error("invalid change_number=%r in cooldown check", change_number)
         return False
 
     # Workflow name must be alphanumeric with hyphens only
     if not re.match(r"^[\w-]+$", workflow_name):
-        print(f"Invalid workflow name: {workflow_name}")
+        log.error("invalid workflow_name=%r in cooldown check", workflow_name)
         return False
 
     # /tmp/ is intentional for ephemeral cooldown files with path validation below
@@ -67,11 +71,14 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
     try:
         # Path traversal protection - validate resolved path stays in /tmp
         if not str(cooldown_file.resolve()).startswith("/tmp/"):  # nosec B108
-            print(f"Path traversal attempt detected: {cooldown_file}")
+            log.error(
+                "path traversal attempt detected for cooldown file=%s",
+                cooldown_file,
+            )
             return False
     except OSError as e:
         # Issue 13 Fix: Filesystem error handling - fail open
-        print(f"Warning: Cooldown path validation failed: {e}")
+        log.warning("cooldown path validation failed: %s", e)
         return True
 
     try:
@@ -91,9 +98,12 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
 
             if time_since_trigger < COOLDOWN_SECONDS:
                 remaining = int(COOLDOWN_SECONDS - time_since_trigger)
-                print(
-                    f"Cooldown active for workflow '{workflow_name}' on change {change_number}. "
-                    f"Retry in {remaining} seconds."
+                log.info(
+                    "cooldown active workflow=%s change_number=%s "
+                    "retry_in_seconds=%d",
+                    workflow_name,
+                    change_number,
+                    remaining,
                 )
                 return False
             else:
@@ -117,8 +127,12 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
 
     except OSError as e:
         # Issue 13 Fix: Filesystem error handling - fail open for non-critical feature
-        print(f"Warning: Cooldown check failed due to filesystem error: {e}")
-        print(f"Allowing workflow to proceed for change {change_number}")
+        log.warning(
+            "cooldown check failed due to filesystem error: %s; "
+            "allowing workflow to proceed for change_number=%s",
+            e,
+            change_number,
+        )
         return True
 
 
@@ -172,6 +186,16 @@ def comment_added(
         commit (str): SHA1 of commit
         comment (str): the comment added to the change
     """
+    _configure_logging()
+    started = time.monotonic()
+    log.info(
+        "hook=comment-added project=%s branch=%s author=%s argv_count=%d",
+        project,
+        branch,
+        author_username,
+        len(sys.argv),
+    )
+
     change_id = get_change_id(change)
     change_number = get_change_number(change_url)
 
@@ -218,8 +242,20 @@ def comment_added(
             break
 
     if workflow_name:
+        log.info(
+            "comment-added gha command detected workflow=%s change_number=%s",
+            workflow_name,
+            change_number,
+        )
         # Issue 5 Fix: Check cooldown but don't update yet (update after successful dispatch)
         if not check_cooldown(change_number, workflow_name):
+            log.info(
+                "hook=comment-added skipped (cooldown) workflow=%s "
+                "change_number=%s elapsed_ms=%d",
+                workflow_name,
+                change_number,
+                int((time.monotonic() - started) * 1000),
+            )
             return
 
         # Add command line to inputs so GHA workflow can parse parameters
@@ -231,35 +267,100 @@ def comment_added(
 
             # Issue 6 Fix: Validate dispatch was successful
             if dispatched == 0:
+                # Print preserved for backwards compatibility with operators
+                # tailing hook stdout; structured log line below carries the
+                # same signal for log aggregation.
                 print(
                     f"No workflows found matching '{GHA_GENERIC_HANDLER}' for project {project}"
                 )
                 print(f"Command attempted: {gha_command_line}")
+                log.warning(
+                    "no workflows matched filter=%s project=%s for command=%r",
+                    GHA_GENERIC_HANDLER,
+                    project,
+                    gha_command_line,
+                )
                 return  # Don't update cooldown if no workflows found
 
             # Issue 6 Fix: Log success with count
-            print(
-                f"Successfully dispatched {dispatched} workflow(s) for '{workflow_name}'"
+            log.info(
+                "comment-added dispatched=%d workflow=%s change_number=%s",
+                dispatched,
+                workflow_name,
+                change_number,
             )
 
         except Exception as e:
             # Issue 11 Fix: Add context to exception
+            # Print preserved for backwards compatibility with operators
+            # tailing hook stdout; logger.exception() below carries the full
+            # traceback for log aggregation pipelines.
             print(f"Error dispatching workflow '{GHA_GENERIC_HANDLER}': {e}")
             print(f"Command attempted: {gha_command_line}")
             print(f"Change: {change_number}, Patchset: {patchset}, Project: {project}")
+            log.exception(
+                "error dispatching workflow filter=%s command=%r "
+                "change_number=%s patchset=%s project=%s: %s",
+                GHA_GENERIC_HANDLER,
+                gha_command_line,
+                change_number,
+                patchset,
+                project,
+                e,
+            )
             raise  # Don't update cooldown on error
+        finally:
+            elapsed_ms = int((time.monotonic() - started) * 1000)
+            log.info(
+                "hook=comment-added exit project=%s change_number=%s " "elapsed_ms=%d",
+                project,
+                change_number,
+                elapsed_ms,
+            )
 
         return
 
     mapping = get_mapping("comment-added")
     if mapping is None:
+        log.debug(
+            "no comment-added mapping configured; nothing to do for "
+            "change_number=%s",
+            change_number,
+        )
+        log.info(
+            "hook=comment-added exit project=%s change_number=%s " "elapsed_ms=%d",
+            project,
+            change_number,
+            int((time.monotonic() - started) * 1000),
+        )
         return
 
-    for mapper in mapping:
-        if not re.findall(mapper, comment):
-            continue
-
-        find_and_dispatch(project, mapping[mapper], inputs)
+    matched_any = False
+    try:
+        for mapper in mapping:
+            if not re.findall(mapper, comment):
+                continue
+            matched_any = True
+            log.info(
+                "comment-added keyword matched mapper=%s -> filter=%s "
+                "change_number=%s",
+                mapper,
+                mapping[mapper],
+                change_number,
+            )
+            find_and_dispatch(project, mapping[mapper], inputs)
+        if not matched_any:
+            log.debug(
+                "comment-added: no keyword mapper matched for " "change_number=%s",
+                change_number,
+            )
+    finally:
+        log.info(
+            "hook=comment-added exit project=%s change_number=%s " "elapsed_ms=%d",
+            project,
+            change_number,
+            int((time.monotonic() - started) * 1000),
+        )
 
 
 if __name__ == "__main__":
