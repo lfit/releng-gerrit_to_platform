@@ -63,7 +63,7 @@ replication.config file
 
 The ``gerrit_to_platform.ini`` file has the following format::
 
-    [mapping "content-added"]
+    [mapping "comment-added"]
     recheck = verify
     remerge = merge
 
@@ -74,7 +74,7 @@ The ``gerrit_to_platform.ini`` file has the following format::
     token = <a_token_that_allows_triggering_workflows>
 
 
-The ``content-added`` mapping section is a key value pair for comment triggers
+The ``comment-added`` mapping section is a key value pair for comment triggers
 to the corresponding workflow name or filename
 
 GitHub Workflow Configuration
