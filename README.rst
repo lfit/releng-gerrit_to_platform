@@ -105,6 +105,33 @@ should never include 'required' in their filename.
 ex: ``.github/workflows/gerrit-merge.yaml`` or
 ``.github/workflows/gerrit-sonar-novote-verify.yaml``
 
+Filename matching is a case-insensitive *substring* test (``str.find``), not a
+prefix or exact match: a workflow is selected when its filename contains both
+``gerrit`` and the search filter anywhere in the name. The recommended naming
+convention is ``gerrit-<description>-<event>.yaml`` so that the ``gerrit-``
+prefix opts the workflow into Gerrit dispatch and the trailing event keyword
+(``verify``, ``merge``, or a custom comment keyword) selects the hook.
+
+ex: ``gerrit-verify.yaml``, ``gerrit-maven-merge.yaml``,
+``gerrit-release-merge.yaml``
+
+Because the match is a substring and gerrit-to-platform dispatches *every*
+matching workflow for an event, two cautions apply:
+
+* Choose names so that only the intended workflows match. For example, both
+  ``gerrit-maven-merge.yaml`` and ``gerrit-release-merge.yaml`` contain
+  ``merge`` and therefore both fire on every change-merged event.
+* A workflow that must not act on every event has to self-gate, for example by
+  inspecting the changed files or ``GERRIT_EVENT_TYPE`` and exiting early when
+  it does not apply.
+
+For comment-added triggers the search filter is the value mapped to the keyword
+in the ``[mapping "comment-added"]`` section described above, so the workflow
+filename must contain that mapped filter. For example, with
+``stage-release = stage`` a posted ``stage-release`` comment selects workflows
+whose filename contains both ``gerrit`` and ``stage``, such as
+``gerrit-maven-stage.yaml``.
+
 All workflows must have the following primary configuration::
 
     ---

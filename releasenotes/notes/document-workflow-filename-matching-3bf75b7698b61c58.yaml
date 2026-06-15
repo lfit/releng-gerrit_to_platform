@@ -1,0 +1,23 @@
+---
+other:
+  - |
+    Enhanced workflow filename matching documentation in ``README.rst``
+    to clarify the selection behaviour implemented by
+    ``github.filter_workflows``. The existing "must contain 'gerrit' and
+    the search filter" requirement is now supplemented with:
+
+    * The test is a case-insensitive substring match (``str.find``), not
+      a prefix or exact match.
+    * gerrit-to-platform dispatches *all* workflows that match an event,
+      not just one.
+    * Recommended naming convention is
+      ``gerrit-<description>-<event>.yaml`` (e.g.
+      ``gerrit-maven-merge.yaml``, ``gerrit-verify.yaml``).
+    * Caution that workflows which must not act on every event have to
+      self-gate (e.g. by inspecting changed files or
+      ``GERRIT_EVENT_TYPE``).
+    * Example showing comment-added keyword mapping to workflow filename
+      (e.g. ``stage-release = stage`` → ``gerrit-maven-stage.yaml``).
+
+    This is a documentation-only change; no code or behaviour is
+    affected.
