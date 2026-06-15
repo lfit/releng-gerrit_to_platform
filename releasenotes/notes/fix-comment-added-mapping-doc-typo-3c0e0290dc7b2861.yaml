@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    Fixed documentation typo in ``README.rst`` where the
+    ``[mapping "comment-added"]`` configuration section was incorrectly
+    documented as ``[mapping "content-added"]``. The code correctly reads
+    ``comment-added`` (via ``get_mapping("comment-added")``), so this was
+    a documentation-only error. Operators copying the documented section
+    name would have created a configuration section that was never read,
+    causing comment-added triggers such as ``recheck``, ``remerge``, and
+    custom keywords like ``stage-release`` to silently no-op.
