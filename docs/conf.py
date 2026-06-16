@@ -13,7 +13,7 @@ import os
 import sys
 import shutil
 
-from docs_conf.conf import *  # type: ignore
+from docs_conf.conf import *  # type: ignore  # noqa: F403
 
 # -- Path setup --------------------------------------------------------------
 
@@ -56,7 +56,9 @@ try:
 
     apidoc.main(args)
 except Exception as e:
-    print("Running `sphinx-apidoc` failed!\n{}".format(e))
+    import warnings
+
+    warnings.warn(f"Running `sphinx-apidoc` failed!\n{e}", stacklevel=1)
 
 # -- General configuration ---------------------------------------------------
 
@@ -251,7 +253,13 @@ latex_elements: Dict[Any, Any] = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "gerrit-to-platform Documentation", "Andrew Grimberg", "manual")
+    (
+        "index",
+        "user_guide.tex",
+        "gerrit-to-platform Documentation",
+        "Andrew Grimberg",
+        "manual",
+    )
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
