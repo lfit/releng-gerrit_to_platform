@@ -63,9 +63,7 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
         return False
 
     # /tmp/ is intentional for ephemeral cooldown files with path validation below
-    cooldown_file = Path(
-        f"/tmp/gha_cooldown_{change_number}_{workflow_name}"
-    )  # nosec B108
+    cooldown_file = Path(f"/tmp/gha_cooldown_{change_number}_{workflow_name}")  # nosec B108
 
     # Verify the resolved path is still within /tmp (path traversal protection)
     try:
@@ -99,8 +97,7 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
             if time_since_trigger < COOLDOWN_SECONDS:
                 remaining = int(COOLDOWN_SECONDS - time_since_trigger)
                 log.info(
-                    "cooldown active workflow=%s change_number=%s "
-                    "retry_in_seconds=%d",
+                    "cooldown active workflow=%s change_number=%s retry_in_seconds=%d",
                     workflow_name,
                     change_number,
                     remaining,
@@ -113,7 +110,6 @@ def check_cooldown(change_number: str, workflow_name: str) -> bool:
                 except OSError:
                     pass  # Ignore deletion errors
 
-                # Create new cooldown file
                 try:
                     fd = os.open(
                         str(cooldown_file), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644
@@ -312,7 +308,7 @@ def comment_added(
         finally:
             elapsed_ms = int((time.monotonic() - started) * 1000)
             log.info(
-                "hook=comment-added exit project=%s change_number=%s " "elapsed_ms=%d",
+                "hook=comment-added exit project=%s change_number=%s elapsed_ms=%d",
                 project,
                 change_number,
                 elapsed_ms,
@@ -323,12 +319,11 @@ def comment_added(
     mapping = get_mapping("comment-added")
     if mapping is None:
         log.debug(
-            "no comment-added mapping configured; nothing to do for "
-            "change_number=%s",
+            "no comment-added mapping configured; nothing to do for change_number=%s",
             change_number,
         )
         log.info(
-            "hook=comment-added exit project=%s change_number=%s " "elapsed_ms=%d",
+            "hook=comment-added exit project=%s change_number=%s elapsed_ms=%d",
             project,
             change_number,
             int((time.monotonic() - started) * 1000),
@@ -342,8 +337,7 @@ def comment_added(
                 continue
             matched_any = True
             log.info(
-                "comment-added keyword matched mapper=%s -> filter=%s "
-                "change_number=%s",
+                "comment-added keyword matched mapper=%s -> filter=%s change_number=%s",
                 mapper,
                 mapping[mapper],
                 change_number,
@@ -351,12 +345,12 @@ def comment_added(
             find_and_dispatch(project, mapping[mapper], inputs)
         if not matched_any:
             log.debug(
-                "comment-added: no keyword mapper matched for " "change_number=%s",
+                "comment-added: no keyword mapper matched for change_number=%s",
                 change_number,
             )
     finally:
         log.info(
-            "hook=comment-added exit project=%s change_number=%s " "elapsed_ms=%d",
+            "hook=comment-added exit project=%s change_number=%s elapsed_ms=%d",
             project,
             change_number,
             int((time.monotonic() - started) * 1000),

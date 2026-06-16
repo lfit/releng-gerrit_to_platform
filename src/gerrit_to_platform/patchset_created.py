@@ -97,7 +97,7 @@ def patchset_created(
     try:
         dispatched = find_and_dispatch(project, "verify", inputs)
         log.info(
-            "hook=patchset-created dispatched=%d project=%s " "change_number=%s",
+            "hook=patchset-created dispatched=%d project=%s change_number=%s",
             dispatched,
             project,
             change_number,
@@ -111,7 +111,7 @@ def patchset_created(
     finally:
         elapsed_ms = int((time.monotonic() - started) * 1000)
         log.info(
-            "hook=patchset-created exit project=%s change_number=%s " "elapsed_ms=%d",
+            "hook=patchset-created exit project=%s change_number=%s elapsed_ms=%d",
             project,
             change_number,
             elapsed_ms,

@@ -55,11 +55,14 @@ repos:
     hooks:
       - id: isort
 
-  - repo: https://github.com/psf/black
-    rev: e026c93888f91a47a9c9f4e029f3eb07d96375e6  # frozen: 24.1.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 0671d8ab202c4ac093b78433ae5baf74f3fc7246  # frozen: v0.15.15
     hooks:
-      - id: black
-        language_version: python3
+      - id: ruff
+        files: ^(src|tests)/.+\.py$
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        files: ^(src|tests)/.+\.py$
 
   - repo: https://github.com/PyCQA/flake8
     rev: 7d37d9032d0d161634be4554273c30efd4dea0b3  # frozen: 7.0.0

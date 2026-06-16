@@ -138,8 +138,7 @@ def find_and_dispatch(
             owner = remotes[platform.value][remote]["owner"]
             repo = convert_repo_name(remotes, platform, remote, project)
             log.info(
-                "platform detected platform=%s remote=%s owner=%s repo=%s "
-                "project=%s",
+                "platform detected platform=%s remote=%s owner=%s repo=%s project=%s",
                 platform.value,
                 remote,
                 owner,
@@ -148,8 +147,7 @@ def find_and_dispatch(
             )
             workflows = filter_workflows(owner, repo, workflow_filter)
             log.info(
-                "workflow lookup platform=%s owner=%s repo=%s filter=%s "
-                "candidates=%d",
+                "workflow lookup platform=%s owner=%s repo=%s filter=%s candidates=%d",
                 platform.value,
                 owner,
                 repo,
@@ -207,7 +205,6 @@ def find_and_dispatch(
                         int((time.monotonic() - started) * 1000),
                     )
                 except Exception as e:
-                    print(f"Failed to dispatch workflow: {e}")
                     log.exception(
                         "dispatch failure platform=%s owner=%s repo=%s "
                         "workflow=%s elapsed_ms=%d: %s",
@@ -275,7 +272,6 @@ def find_and_dispatch(
                             int((time.monotonic() - started) * 1000),
                         )
                     except Exception as e:
-                        print(f"Failed to dispatch workflow: {e}")
                         log.exception(
                             "required dispatch failure platform=%s "
                             "owner=%s magic_repo=%s workflow=%s "
