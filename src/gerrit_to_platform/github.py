@@ -65,7 +65,7 @@ def dispatch_workflow(
         )
         raise
     _dispatch_log.info(
-        "workflow dispatch ok owner=%s repo=%s workflow_id=%s ref=%s " "elapsed_ms=%d",
+        "workflow dispatch ok owner=%s repo=%s workflow_id=%s ref=%s elapsed_ms=%d",
         owner,
         repository,
         workflow_id,

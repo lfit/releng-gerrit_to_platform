@@ -226,7 +226,7 @@ def test_get_change_id_legacy_triplet():
 
 def test_get_change_id_legacy_full_change_id():
     """A real-world legacy triplet returns the full Change-Id."""
-    triplet = "ccsdk%2Fapps~master~" "I260d518121dd9114b83f44f1036a560f83c92475"
+    triplet = "ccsdk%2Fapps~master~I260d518121dd9114b83f44f1036a560f83c92475"
     assert get_change_id(triplet) == ("I260d518121dd9114b83f44f1036a560f83c92475")
 
 

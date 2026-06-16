@@ -76,7 +76,7 @@ def change_merged(
     patchset = "1"
     refspec = f"refs/heads/{branch}"
     log.debug(
-        "event parsed change_number=%s change_id=%s refspec=%s commit=%s " "newrev=%s",
+        "event parsed change_number=%s change_id=%s refspec=%s commit=%s newrev=%s",
         change_number,
         change_id,
         refspec,
@@ -113,7 +113,7 @@ def change_merged(
     finally:
         elapsed_ms = int((time.monotonic() - started) * 1000)
         log.info(
-            "hook=change-merged exit project=%s change_number=%s " "elapsed_ms=%d",
+            "hook=change-merged exit project=%s change_number=%s elapsed_ms=%d",
             project,
             change_number,
             elapsed_ms,
