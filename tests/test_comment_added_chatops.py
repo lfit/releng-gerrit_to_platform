@@ -331,9 +331,7 @@ class TestChatOpsSecurityAndEdgeCases:
     def test_malformed_command(self):
         """Test handling of malformed ChatOps command."""
         malformed = CHATOPS_CSIT.copy()
-        malformed[
-            10
-        ] = """--comment=Patch Set 1:
+        malformed[10] = """--comment=Patch Set 1:
 
 gha-run"""  # No workflow name
 
@@ -351,9 +349,7 @@ gha-run"""  # No workflow name
     def test_multiple_commands_only_first_processed(self):
         """Test that only first command is processed."""
         multi_cmd = CHATOPS_CSIT.copy()
-        multi_cmd[
-            10
-        ] = """--comment=Patch Set 1:
+        multi_cmd[10] = """--comment=Patch Set 1:
 
 gha-run workflow1
 gha-run workflow2"""

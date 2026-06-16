@@ -169,9 +169,7 @@ class TextFormatter(logging.Formatter):
         ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(record.created))
         cid = getattr(record, "cid", "-")
         message = record.getMessage()
-        formatted = (
-            f"{ts} [{record.levelname:<5}] [cid={cid}] " f"{record.name}: {message}"
-        )
+        formatted = f"{ts} [{record.levelname:<5}] [cid={cid}] {record.name}: {message}"
         if record.exc_info:
             formatted = f"{formatted}\n{self.formatException(record.exc_info)}"
         return formatted
