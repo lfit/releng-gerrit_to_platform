@@ -205,7 +205,7 @@ jobs:
           languages: python
       - name: Perform CodeQL Analysis
         # yamllint disable-line rule:line-length
-        uses: github/codeql-action/analyze@6bc82e05fd0ea64601dd4b465378bbcf57de0314  # v4.32.1
+        uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81  # v4.37.3
 
   finalize:
     needs: test
