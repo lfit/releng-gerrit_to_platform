@@ -1,0 +1,40 @@
+---
+fixes:
+  - |
+    Workflow dispatch no longer fires for changes the platform-side
+    service account cannot read.  Previously ``patchset-created`` (and
+    ``comment-added``) dispatched verify workflows unconditionally,
+    including for **private** Gerrit changes.  Private change refs are
+    not replicated to the platform mirrors, so every such dispatch
+    failed immediately (``fatal: Not found: <change number>``) and
+    spammed the change owner and the releng mailing lists with failure
+    notifications for work that was never ready for review.
+
+    ``find_and_dispatch`` now probes the change anonymously over the
+    Gerrit REST API before dispatching (``GET <base>/changes/<number>``).
+    Gerrit answers HTTP 404 for changes the requester cannot see, which
+    matches what the platform-side account and the replication mirror
+    can access.  When the change is unreadable, the dispatch is skipped
+    and the reason is logged; a fresh hook event fires when the change
+    is published, so no verification coverage is lost.
+
+    The probe fails open: network errors, timeouts and unexpected
+    statuses all allow the dispatch to proceed, so a Gerrit REST outage
+    can never block CI.  ``change-merged`` events skip the probe
+    entirely because Gerrit refuses to submit private changes.
+upgrade:
+  - |
+    Operators of Gerrit servers that do not allow anonymous REST read
+    access (where every change would probe as HTTP 404) must disable
+    the new visibility gate in ``gerrit_to_platform.ini``::
+
+        [gerrit]
+        visibility_check = false
+
+    No action is required for servers with standard anonymous read
+    access.
+issues:
+  - |
+    See https://github.com/lfit/releng-gerrit_to_platform/issues/116
+    for the full failure analysis (91% of all ``Gerrit Required
+    Verify`` failures in ``FDio/.github`` over a 35-day sample window).

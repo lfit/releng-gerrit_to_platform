@@ -20,6 +20,7 @@ from gerrit_to_platform.config import (
     ReplicationRemotes,
     get_replication_remotes,
 )
+from gerrit_to_platform.gerrit import is_change_readable
 
 log = get_logger(__name__)
 
@@ -111,6 +112,32 @@ def find_and_dispatch(
     Returns:
         int: The number of workflows dispatched
     """
+    change_url = inputs.get("GERRIT_CHANGE_URL", "")
+    change_number = inputs.get("GERRIT_CHANGE_NUMBER", "")
+    event_type = inputs.get("GERRIT_EVENT_TYPE", "")
+
+    # Merged changes are always public (Gerrit refuses to submit a
+    # private change), so the probe only runs for pre-merge events.
+    if event_type != "change-merged" and not is_change_readable(
+        change_url, change_number
+    ):
+        # Operator-facing confirmation kept on stdout; the structured
+        # log line below is the machine-readable counterpart.
+        print(
+            f"Skipping dispatch for change {change_number}: the change "
+            "is not readable platform-side (private or restricted). "
+            "A fresh event fires when the change is published."
+        )
+        log.info(
+            "dispatch skipped (change not readable) project=%s "
+            "filter=%s change_number=%s event_type=%s",
+            project,
+            workflow_filter,
+            change_number,
+            event_type,
+        )
+        return 0
+
     remotes = get_replication_remotes()
     dispatched_count = 0
     log.debug(

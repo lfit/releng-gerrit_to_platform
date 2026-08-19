@@ -138,6 +138,11 @@ def test_find_and_dispatch(mocker, capfd):
         "GERRIT_REFSPEC": "refs/heads/main",
     }
 
+    mocker.patch(
+        "gerrit_to_platform.helpers.is_change_readable",
+        return_value=True,
+    )
+
     with open(REPLICATION_REMOTES_GITHUB) as remotes:
         replication_remotes = json.load(remotes)
 
@@ -217,6 +222,64 @@ def test_find_and_dispatch(mocker, capfd):
     assert PATCH1_REQUIRED_VERIFY not in actual
     assert PATCH1_CHECK_MAIN not in actual
     assert actual == ""
+
+
+def test_find_and_dispatch_skips_unreadable_change(mocker, capfd):
+    """Dispatch is skipped when the change is not readable."""
+    inputs = {
+        "GERRIT_BRANCH": "main",
+        "GERRIT_CHANGE_ID": "Ichange_id",
+        "GERRIT_CHANGE_NUMBER": "1",
+        "GERRIT_CHANGE_URL": "https://foo.bar/r/c/example/+/1",
+        "GERRIT_EVENT_TYPE": "patchset-created",
+        "GERRIT_PATCHSET_NUMBER": "1",
+        "GERRIT_PATCHSET_REVISION": "foo",
+        "GERRIT_PROJECT": "example/project",
+        "GERRIT_REFSPEC": "refs/changes/01/1/1",
+    }
+
+    readable = mocker.patch(
+        "gerrit_to_platform.helpers.is_change_readable",
+        return_value=False,
+    )
+    get_remotes = mocker.patch(
+        "gerrit_to_platform.helpers.get_replication_remotes",
+    )
+
+    dispatched = find_and_dispatch("example-project", "verify", inputs)
+    assert dispatched == 0
+    readable.assert_called_once_with("https://foo.bar/r/c/example/+/1", "1")
+    get_remotes.assert_not_called()
+    actual = capfd.readouterr().out
+    assert "Skipping dispatch for change 1" in actual
+
+
+def test_find_and_dispatch_no_readable_check_for_merges(mocker):
+    """change-merged events never probe change visibility."""
+    inputs = {
+        "GERRIT_BRANCH": "main",
+        "GERRIT_CHANGE_ID": "Ichange_id",
+        "GERRIT_CHANGE_NUMBER": "1",
+        "GERRIT_CHANGE_URL": "https://foo.bar/r/c/example/+/1",
+        "GERRIT_EVENT_TYPE": "change-merged",
+        "GERRIT_PATCHSET_NUMBER": "1",
+        "GERRIT_PATCHSET_REVISION": "foo",
+        "GERRIT_PROJECT": "example/project",
+        "GERRIT_REFSPEC": "refs/heads/main",
+    }
+
+    readable = mocker.patch(
+        "gerrit_to_platform.helpers.is_change_readable",
+        return_value=False,
+    )
+    mocker.patch(
+        "gerrit_to_platform.helpers.get_replication_remotes",
+        return_value={},
+    )
+
+    dispatched = find_and_dispatch("example-project", "merge", inputs)
+    assert dispatched == 0
+    readable.assert_not_called()
 
 
 def test_get_change_id_legacy_triplet():
