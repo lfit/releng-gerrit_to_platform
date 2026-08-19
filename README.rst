@@ -73,9 +73,35 @@ The ``gerrit_to_platform.ini`` file has the following format::
     [gitlab.com]
     token = <a_token_that_allows_triggering_workflows>
 
+    # Optional. The change visibility gate is enabled by default; only
+    # set this on Gerrit servers without anonymous REST read access.
+    [gerrit]
+    visibility_check = false
+
 
 The ``content-added`` mapping section is a key value pair for comment triggers
 to the corresponding workflow name or filename
+
+Private and Restricted Changes
+==============================
+
+Before dispatching for ``patchset-created`` and ``comment-added`` events,
+gerrit-to-platform probes the change anonymously over the Gerrit REST API
+(``GET <base>/changes/<number>``). Gerrit answers HTTP 404 for changes the
+requester cannot see — private changes in particular — which matches what
+the platform-side service account and the replication mirror can access.
+When the change is unreadable the dispatch is skipped and the reason is
+logged; Gerrit fires a fresh event when the change is published, so no
+verification coverage is lost.
+
+The probe fails open: network errors, timeouts and unexpected statuses all
+allow the dispatch to proceed, so a Gerrit REST outage can never block CI.
+``change-merged`` events skip the probe because Gerrit refuses to submit
+private changes.
+
+On Gerrit servers without anonymous REST read access every change would
+probe as HTTP 404, so operators of such servers must disable the gate with
+``visibility_check = false`` in the ``[gerrit]`` section (see above).
 
 GitHub Workflow Configuration
 =============================
