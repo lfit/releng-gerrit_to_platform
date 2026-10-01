@@ -200,7 +200,7 @@ jobs:
           python-version: "3.11"
       - name: Initialize CodeQL
         # yamllint disable-line rule:line-length
-        uses: github/codeql-action/init@6bc82e05fd0ea64601dd4b465378bbcf57de0314  # v4.32.1
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2  # v4.38.2
         with:
           languages: python
       - name: Perform CodeQL Analysis
